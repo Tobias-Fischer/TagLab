@@ -1,5 +1,5 @@
 
-from source.genutils import requirePackage, taglabPath
+from source.genutils import requirePackage, taglabPath, modelPath
 import yaml
 import os
 import sys
@@ -87,19 +87,19 @@ def trainYOLOSeg(params,log_callback=None):
     model_file = {
 
         "yolo11": {
-            "n": taglabPath("models", "yolo11n-seg.pt"),
-            "s": taglabPath("models", "yolo11s-seg.pt"),
-            "m": taglabPath("models", "yolo11m-seg.pt"),
-            "l": taglabPath("models", "yolo11l-seg.pt"),
-            "x": taglabPath("models", "yolo11x-seg.pt"),
+            "n": modelPath("yolo11n-seg.pt"),
+            "s": modelPath("yolo11s-seg.pt"),
+            "m": modelPath("yolo11m-seg.pt"),
+            "l": modelPath("yolo11l-seg.pt"),
+            "x": modelPath("yolo11x-seg.pt"),
         },
 
         "yolo26": {
-            "n": taglabPath("models", "yolo26n-seg.pt"),
-            "s": taglabPath("models", "yolo26s-seg.pt"),
-            "m": taglabPath("models", "yolo26m-seg.pt"),
-            "l": taglabPath("models", "yolo26l-seg.pt"),
-            "x": taglabPath("models", "yolo26x-seg.pt"),
+            "n": modelPath("yolo26n-seg.pt"),
+            "s": modelPath("yolo26s-seg.pt"),
+            "m": modelPath("yolo26m-seg.pt"),
+            "l": modelPath("yolo26l-seg.pt"),
+            "x": modelPath("yolo26x-seg.pt"),
         }
     }
 

@@ -22,6 +22,7 @@
 import io
 import importlib
 import os
+import sys
 from PySide6.QtCore import Qt, QObject, QMetaObject, QMetaMethod
 from PySide6.QtGui import QImage, QPixmap, qRgb, qRgba
 import numpy as np
@@ -38,6 +39,37 @@ TAGLAB_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def taglabPath(*parts):
     """ Path of a TagLab resource (icon, model, dictionary...), whatever the current working directory is. """
     return os.path.join(TAGLAB_DIR, *parts)
+
+
+def userDataDir():
+    """ Writable folder for TagLab's own files (log, temp, settings, models): the TagLab folder itself if it is writable (a source checkout), else a per-user data folder (a read-only installation, e.g. a conda package). """
+    path = TAGLAB_DIR
+    if not os.access(path, os.W_OK):
+        if sys.platform == "win32":
+            base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~\\AppData\\Local")
+        elif sys.platform == "darwin":
+            base = os.path.expanduser("~/Library/Application Support")
+        else:
+            base = os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share")
+        path = os.path.join(base, "TagLab")
+        os.makedirs(path, exist_ok=True)
+    return path
+
+
+def modelsDir():
+    """ Folder where downloaded/trained network weights are stored: $TAGLAB_MODELS if set, else models/ inside userDataDir(). Created if needed. """
+    path = os.environ.get("TAGLAB_MODELS") or os.path.join(userDataDir(), "models")
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+def modelPath(name):
+    """ Path of the weights file `name`: an existing file in the models folder or in the TagLab one, else where it would be stored. """
+    path = os.path.join(modelsDir(), name)
+    bundled = taglabPath("models", name)
+    if not os.path.exists(path) and os.path.exists(bundled):
+        return bundled
+    return path
 
 import math
 

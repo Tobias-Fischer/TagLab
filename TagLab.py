@@ -130,7 +130,7 @@ import logging
 # configure the logger
 now = datetime.datetime.now()
 #LOG_FILENAME = "tool" + now.strftime("%Y-%m-%d-%H-%M") + ".log"
-LOG_FILENAME = genutils.taglabPath("TagLab.log")
+LOG_FILENAME = os.path.join(genutils.userDataDir(), "TagLab.log")
 logging.basicConfig(level=logging.DEBUG, filemode='w', filename=LOG_FILENAME, format = '%(asctime)s %(levelname)-8s %(message)s')
 logfile = logging.getLogger("tool-logger")
 
@@ -199,7 +199,8 @@ class TagLab(QMainWindow):
 
         # LOAD CONFIGURATION FILE
 
-        f = open(os.path.join(self.taglab_dir, "config.json"), "r")
+        user_config = os.path.join(genutils.userDataDir(), "config.json")   # written when a classifier is trained
+        f = open(user_config if os.path.exists(user_config) else os.path.join(self.taglab_dir, "config.json"), "r")
         config_dict = json.load(f)
         self.available_classifiers = config_dict["Available Classifiers"]
 
@@ -5804,7 +5805,7 @@ class TagLab(QMainWindow):
 
         classifier_name = self.trainYourNetworkWidget.editNetworkName.text()
         network_name = self.trainYourNetworkWidget.editNetworkName.text() + ".net"
-        network_filename = os.path.join(os.path.join(self.taglab_dir, "models"), network_name)
+        network_filename = genutils.modelPath(network_name)
 
         # training folders
         train_folder = os.path.join(dataset_folder, "training")
@@ -5912,7 +5913,7 @@ class TagLab(QMainWindow):
         newconfig = dict()
         newconfig["Available Classifiers"] = self.available_classifiers
         str = json.dumps(newconfig, indent=2)
-        newconfig_filename = os.path.join(self.taglab_dir, "config.json")
+        newconfig_filename = os.path.join(genutils.userDataDir(), "config.json")
         f = open(newconfig_filename, "w")
         f.write(str)
         f.close()
@@ -6495,7 +6496,7 @@ class TagLab(QMainWindow):
                     self.progress_bar.setMessage("Finalizing classification results..")
                     QApplication.processEvents()
 
-                    filename = genutils.taglabPath("temp", "labelmap.png")
+                    filename = os.path.join(genutils.userDataDir(), "temp", "labelmap.png")
 
                     offset = self.classifier.offset
                     scale = [self.classifier.scale_factor, self.classifier.scale_factor]

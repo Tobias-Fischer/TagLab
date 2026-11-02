@@ -37,7 +37,7 @@ from PySide6.QtCore import QCoreApplication, Qt, QObject, Slot, Signal
 from PySide6.QtGui import QPainter, QImage, QColor, QPixmap, qRgb, qRed, qGreen, qBlue
 
 from source import genutils
-from source.genutils import taglabPath
+from source.genutils import taglabPath, modelPath, userDataDir
 
 
 class MapClassifier(QObject):
@@ -86,14 +86,12 @@ class MapClassifier(QObject):
         self.wa_width = 0
         self.wa_height = 0
 
-        self.temp_dir = taglabPath("temp")
+        self.temp_dir = os.path.join(userDataDir(), "temp")
 
 
     def _load_classifier(self, modelName):
 
-        models_dir = taglabPath("models")
-
-        network_name = os.path.join(models_dir, modelName)
+        network_name = modelPath(modelName)
 
         classifier = DeepLab(backbone='resnet', output_stride=16, num_classes=self.nclasses)
 

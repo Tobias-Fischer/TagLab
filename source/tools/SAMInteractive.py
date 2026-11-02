@@ -2,6 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtGui import QPen, QBrush, QColor, QPainterPath
 from source.genutils import qimageToNumpyArray, cropQImage
+from source.genutils import modelPath
 from source.ModelWeights import ensureModel, MODEL_SIZES_MB
 
 from source.Blob import Blob
@@ -647,8 +648,7 @@ class SAMInteractive(Tool):
 
             # Initialization
             modelName = sam_dict[self.sam_model_type]
-            models_dir = os.path.join(self.viewerplus.taglab_dir, "models")
-            path = os.path.join(models_dir, modelName + '.pth')
+            path = modelPath(modelName + '.pth')
 
             # the vit_h weights can be downloaded from the TagLab web site if they are missing
             if not os.path.exists(path) and modelName + '.pth' in MODEL_SIZES_MB:

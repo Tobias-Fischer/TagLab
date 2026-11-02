@@ -8,7 +8,7 @@ import urllib.request
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMessageBox, QProgressDialog
 
-from source.genutils import taglabPath
+from source.genutils import modelPath
 
 MODELS_URL = "http://taglab.isti.cnr.it/models/"
 
@@ -63,7 +63,7 @@ def ensureModel(name, parent=None):
     in that case the user has already been told, so the caller only has to give up.
     """
 
-    path = taglabPath("models", name)
+    path = modelPath(name)
     if os.path.exists(path):
         return path
 
