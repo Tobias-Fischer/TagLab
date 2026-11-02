@@ -24,6 +24,7 @@ from PySide6.QtGui import QImage, QImageReader, QPixmap, QIcon, qRgb, qRed, qGre
 from PySide6.QtWidgets import QWidget, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout
 from source.Grid import Grid
+from source.genutils import taglabPath
 
 
 class QtGridWidget(QWidget):
@@ -97,7 +98,7 @@ class QtGridWidget(QWidget):
             layoutV.addLayout(layout)
 
 
-        WorkingAreaIcon = QIcon("icons\\corner.png")
+        WorkingAreaIcon = QIcon(taglabPath("icons", "corner.png"))
         self.fields["position"]["button"].setIcon(WorkingAreaIcon)
 
         buttons_layout = QHBoxLayout()

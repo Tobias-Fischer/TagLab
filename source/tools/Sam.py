@@ -7,7 +7,7 @@ import os
 from skimage import measure
 from PySide6.QtCore import Qt, Signal
 from source.Mask import paintMask, jointBox, jointMask, replaceMask, checkIntersection, intersectMask
-from source.genutils import qimageToNumpyArray, cropQImage
+from source.genutils import qimageToNumpyArray, cropQImage, taglabPath
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtGui import QPen, QBrush
 from source import genutils
@@ -244,7 +244,7 @@ class Sam(Tool):
             sam_checkpoint = "sam_vit_h_4b8939.pth"
             model_type = "vit_h"
 
-            models_dir = "models/"
+            models_dir = taglabPath("models")
             network_name = os.path.join(models_dir, sam_checkpoint)
 
             if not torch.cuda.is_available():

@@ -129,7 +129,7 @@ import logging
 # configure the logger
 now = datetime.datetime.now()
 #LOG_FILENAME = "tool" + now.strftime("%Y-%m-%d-%H-%M") + ".log"
-LOG_FILENAME = "TagLab.log"
+LOG_FILENAME = genutils.taglabPath("TagLab.log")
 logging.basicConfig(level=logging.DEBUG, filemode='w', filename=LOG_FILENAME, format = '%(asctime)s %(levelname)-8s %(message)s')
 logfile = logging.getLogger("tool-logger")
 
@@ -159,14 +159,16 @@ class MainWindow(QMainWindow):
 class TagLab(QMainWindow):
     
 
-    def __init__(self, screen_size, parent=None):
+    def __init__(self, screen_size, parent=None, check_updates=True):
         super(TagLab, self).__init__(parent)
 
         ##### CUSTOM STYLE #####
 
         self.setStyleSheet("background-color: rgb(55,55,55); color: white")
 
-        current_version, need_to_update = self.checkNewVersion()
+        # check_updates=False (e.g. when TagLab is embedded in another application) skips the network check, which
+        # would otherwise quit the whole process if a newer version is online.
+        current_version, need_to_update = self.checkNewVersion() if check_updates else (self.readOfflineVersion(), False)
         if need_to_update:
             if self.getGitBranch() == 'main':
                 print("\033[91m" + "*" * 60)
@@ -185,7 +187,7 @@ class TagLab(QMainWindow):
 
         ##### DATA INITIALIZATION AND SETUP #####
 
-        self.taglab_dir = os.path.dirname(__file__)
+        self.taglab_dir = genutils.TAGLAB_DIR
 
         self.TAGLAB_VERSION = "TagLab " + current_version
 
@@ -285,7 +287,7 @@ class TagLab(QMainWindow):
 
 
         # separator
-        pxmapSeparator = QPixmap("icons/separator.png")
+        pxmapSeparator = QPixmap(genutils.taglabPath("icons", "separator.png"))
         labelSeparator1 = QLabel()
         labelSeparator1.setPixmap(pxmapSeparator.scaled(QSize(35, 30)))
         labelSeparator2 = QLabel()
@@ -525,8 +527,8 @@ class TagLab(QMainWindow):
             self.default_dictionary = self.settings_widget.settings.value("default-dictionary",
                                                                           defaultValue=default_dict,
                                                                           type=str)
-            # Check if previously stored dict actually exists
-            if not os.path.exists(self.default_dictionary):
+            # Check if previously stored dict actually exists (relative paths are relative to the TagLab folder)
+            if not os.path.exists(os.path.join(self.taglab_dir, self.default_dictionary)):
                 QMessageBox.warning(self,
                                     "Warning",
                                     f"Previously loaded dictionary {self.default_dictionary} not found! "
@@ -534,14 +536,14 @@ class TagLab(QMainWindow):
 
                 # If not, check for the scripps dictionary
                 self.default_dictionary = default_dict
-                if not os.path.exists(self.default_dictionary):
+                if not os.path.exists(os.path.join(self.taglab_dir, self.default_dictionary)):
                     raise Exception(f"TagLab default dictionary {self.default_dictionary} not found! "
                                     f"Please re-download it.")
 
             # Re-set the default dictionary
             self.settings_widget.settings.setValue("default-dictionary", self.default_dictionary)
             # Load the dictionary, load the project
-            self.project.loadDictionary(self.default_dictionary)
+            self.project.loadDictionary(os.path.join(self.taglab_dir, self.default_dictionary))
             self.labels_widget.setLabels(self.project, None)
 
         except Exception as e:
@@ -836,7 +838,7 @@ class TagLab(QMainWindow):
     def getGitBranch(self):
         """Return the current git branch name, or 'main' if it cannot be determined."""
         try:
-            git_head = os.path.join(os.path.dirname(__file__), '.git', 'HEAD')
+            git_head = os.path.join(genutils.TAGLAB_DIR, '.git', 'HEAD')
             with open(git_head, 'r') as f:
                 content = f.read().strip()
             if content.startswith('ref: refs/heads/'):
@@ -845,6 +847,11 @@ class TagLab(QMainWindow):
             pass
         return 'main'
 
+    def readOfflineVersion(self):
+
+        with open(os.path.join(genutils.TAGLAB_DIR, "TAGLAB_VERSION"), "r") as f:
+            return f.read()
+
     def checkNewVersion(self):
 
         github_repo = 'cnr-isti-vclab/TagLab/'
@@ -852,9 +859,7 @@ class TagLab(QMainWindow):
         raw_link = 'https://raw.githubusercontent.com/' + github_repo + 'main/TAGLAB_VERSION'
 
         # read offline version
-        taglab_version_file = os.path.join(os.path.dirname(__file__), "TAGLAB_VERSION")
-        f_off_version = open(taglab_version_file, "r")
-        taglab_offline_version = f_off_version.read()
+        taglab_offline_version = self.readOfflineVersion()
 
         #print('Raw link: ' + raw_link)
         try:
@@ -6481,7 +6486,7 @@ class TagLab(QMainWindow):
                     self.progress_bar.setMessage("Finalizing classification results..")
                     QApplication.processEvents()
 
-                    filename = os.path.join("temp", "labelmap.png")
+                    filename = genutils.taglabPath("temp", "labelmap.png")
 
                     offset = self.classifier.offset
                     scale = [self.classifier.scale_factor, self.classifier.scale_factor]
@@ -6517,32 +6522,34 @@ class TagLab(QMainWindow):
                     self.move()
 
 
-if __name__ == '__main__':
+# styles shared by the widgets of TagLab (module level, so that TagLab can be used without running __main__)
+slider_style1 = "\
+ QSlider::groove::horizontal\
+ {\
+     border: 1px solid;\
+     height: 8px;\
+     color: rgb(100,100,100);\
+ }"
 
-    # Create the QApplication.
-    app = QApplication(sys.argv)
+slider_style2 = "QSlider::handle::horizontal\
+ {\
+     background: white;\
+     border: 1;\
+     width: 18px;\
+ }"
 
-    TAGLAB_PATH = os.path.dirname(__file__)
-    PATH_ICONS = os.path.join(TAGLAB_PATH, "icons")
-    PATH_FONTS = os.path.join(TAGLAB_PATH, "fonts")
+
+def setupApplication(app):
+    """
+    Application-wide setup of TagLab: icon, style sheet and font. It is called when TagLab is run as a program;
+    an application that embeds TagLab can skip it (or call it) to decide whether to adopt the TagLab look.
+    """
+
+    PATH_ICONS = os.path.join(genutils.TAGLAB_DIR, "icons")
+    PATH_FONTS = os.path.join(genutils.TAGLAB_DIR, "fonts")
 
     # set application icon
     app.setWindowIcon(QIcon(os.path.join(PATH_ICONS, "taglab50px.png")))
-
-    slider_style1 = "\
-     QSlider::groove::horizontal\
-     {\
-         border: 1px solid;\
-         height: 8px;\
-         color: rgb(100,100,100);\
-     }"
-
-    slider_style2 = "QSlider::handle::horizontal\
-     {\
-         background: white;\
-         border: 1;\
-         width: 18px;\
-     }"
 
     app.setStyleSheet("QLabel {color: white}")
     app.setStyleSheet("QPushButton {background-color: rgb(49,51,53); color: white}")
@@ -6573,6 +6580,14 @@ if __name__ == '__main__':
 
         font = QFont('Roboto')
         app.setFont(font)
+
+
+if __name__ == '__main__':
+
+    # Create the QApplication.
+    app = QApplication(sys.argv)
+
+    setupApplication(app)
 
     # get the scren size
     screen_size = app.primaryScreen().size()

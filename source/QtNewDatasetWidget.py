@@ -23,6 +23,7 @@ import os
 from PySide6.QtCore import Qt, Slot, Signal
 from PySide6.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
 from PySide6.QtWidgets import QWidget, QCheckBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from source.genutils import taglabPath
 
 class QtNewDatasetWidget(QWidget):
 
@@ -114,7 +115,7 @@ class QtNewDatasetWidget(QWidget):
         self.btnChooseDatasetFolder.clicked.connect(self.chooseDatasetFolder)
 
         self.btnChooseExportArea = QPushButton()
-        exportAreaIcon = QIcon("icons\\select_area.png")
+        exportAreaIcon = QIcon(taglabPath("icons", "select_area.png"))
         self.btnChooseExportArea.setIcon(exportAreaIcon)
 
         layoutH0c = QVBoxLayout()
