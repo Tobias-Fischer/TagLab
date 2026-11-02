@@ -2,7 +2,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtGui import QPen, QBrush, QColor, QPainterPath
 from source.genutils import qimageToNumpyArray, cropQImage
-from source.genutils import modelPath
+from source.genutils import modelPath, torchDevice, emptyDeviceCache
 from source.ModelWeights import ensureModel, MODEL_SIZES_MB
 
 from source.Blob import Blob
@@ -669,8 +669,8 @@ class SAMInteractive(Tool):
                 return False
 
             else:
-                # Set the device; users should be using a CUDA GPU, otherwise tool is slow
-                device = torch.device("cuda:" + str(0) if torch.cuda.is_available() else "cpu")
+                # CUDA, else the Apple GPU (MPS), else the CPU (slow)
+                device = torchDevice()
 
                 # Loading the model, returning the predictor
                 sam_model = sam_model_registry[self.sam_model_type](checkpoint=path)
@@ -685,7 +685,7 @@ class SAMInteractive(Tool):
         """
         Reset the network
         """
-        torch.cuda.empty_cache()
+        emptyDeviceCache()
         if self.sampredictor_net is not None:
             del self.sampredictor_net
             self.sampredictor_net = None

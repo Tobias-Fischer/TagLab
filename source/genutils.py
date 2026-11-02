@@ -63,6 +63,33 @@ def modelsDir():
     return path
 
 
+def torchDevice():
+    """
+    Device for the neural networks: CUDA if available, else the Apple GPU (MPS) on Apple-silicon Macs, else the CPU.
+    Set TAGLAB_DEVICE (cpu, mps, cuda) to force one.
+    """
+    import torch
+    forced = os.environ.get("TAGLAB_DEVICE")
+    if forced:
+        return torch.device(forced)
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    mps = getattr(torch.backends, "mps", None)
+    if mps is not None and mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
+def emptyDeviceCache():
+    """Release cached GPU memory (CUDA or MPS); nothing on the CPU."""
+    import torch
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    mps = getattr(torch, "mps", None)
+    if mps is not None and torch.backends.mps.is_available():
+        mps.empty_cache()
+
+
 def modelPath(name):
     """ Path of the weights file `name`: an existing file in the models folder or in the TagLab one, else where it would be stored. """
     path = os.path.join(modelsDir(), name)

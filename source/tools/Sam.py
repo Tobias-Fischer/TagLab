@@ -250,12 +250,8 @@ class Sam(Tool):
                 self.infoMessage.emit("SAM network not available.")
                 return False
 
-            if not torch.cuda.is_available():
-                print("CUDA NOT AVAILABLE! Using CPU.")
-                device = torch.device("cpu")
-            else:
-                device = torch.device("cuda")
-                print(f"CUDA available! Using GPU: {torch.cuda.get_device_name()}")
+            device = genutils.torchDevice()
+            print(f"SAM device: {device}")
 
             self.device = device
             self.sam_net = sam_model_registry[model_type](checkpoint=network_name)
@@ -304,8 +300,7 @@ class Sam(Tool):
     def reset(self):
 
         # Clean up GPU memory properly
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
+        genutils.emptyDeviceCache()
         
         if self.sam_net is not None:
             del self.sam_net
@@ -401,6 +396,12 @@ class Sam(Tool):
             crop_n_points_downscale_factor = 1,
             output_mode = "binary_mask"
         )
+
+        if self.device is not None and self.device.type == "mps":
+            # segment_anything hands float64 prompt points to the model; the Apple GPU has no float64
+            transform = mask_generator.predictor.transform
+            apply_coords = transform.apply_coords
+            transform.apply_coords = lambda *a, **k: apply_coords(*a, **k).astype(np.float32)
 
         image = genutils.qimageToNumpyArray(image)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
