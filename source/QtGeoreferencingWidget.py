@@ -18,18 +18,18 @@
 # for more details.
 
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QGroupBox, QComboBox, QRadioButton, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QWidget, QGroupBox, QComboBox, QRadioButton, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout, QGridLayout, QMessageBox
 from osgeo import osr
 import rasterio as rio
 
 class QtGeoreferencingWidget(QWidget):
 
-    pointsToPickChanged = pyqtSignal(int)
-    validchoices = pyqtSignal()
-    closewidget = pyqtSignal()
+    pointsToPickChanged = Signal(int)
+    validchoices = Signal()
+    closewidget = Signal()
 
     def __init__(self, project, parent=None):
         super(QtGeoreferencingWidget, self).__init__(parent)
@@ -203,7 +203,7 @@ class QtGeoreferencingWidget(QWidget):
         for image in self.project.images:
             self.combobox_map_input.addItem(image.name)
 
-    @pyqtSlot(str)
+    @Slot(str)
     def mapChanged(self, map_name):
         for image in self.project.images:
             if map_name == image.name:
@@ -241,7 +241,7 @@ class QtGeoreferencingWidget(QWidget):
         self.edit_gps_coordinates.setEnabled(False)
         self.google_btn.setEnabled(False)
 
-    @pyqtSlot()
+    @Slot()
     def enableMaps(self):
 
         self.disableAll()
@@ -253,7 +253,7 @@ class QtGeoreferencingWidget(QWidget):
         self.points_to_pick = 0
         self.pointsToPickChanged.emit(0)
 
-    @pyqtSlot()
+    @Slot()
     def enableOnePoint(self):
 
         self.disableAll()
@@ -269,7 +269,7 @@ class QtGeoreferencingWidget(QWidget):
         self.points_to_pick = 1
         self.pointsToPickChanged.emit(1)
 
-    @pyqtSlot()
+    @Slot()
     def enableTwoPoints(self):
 
         self.disableAll()
@@ -291,7 +291,7 @@ class QtGeoreferencingWidget(QWidget):
         self.points_to_pick = 2
         self.pointsToPickChanged.emit(2)
 
-    @pyqtSlot()
+    @Slot()
     def enableChoose(self):
 
         self.disableAll()
@@ -304,7 +304,7 @@ class QtGeoreferencingWidget(QWidget):
         self.points_to_pick = 0
         self.pointsToPickChanged.emit(0)
 
-    @pyqtSlot()
+    @Slot()
     def openGoogleMaps(self):
         import webbrowser
 
@@ -314,7 +314,7 @@ class QtGeoreferencingWidget(QWidget):
         # Open the URL in a new tab, if possible
         webbrowser.open_new_tab(url)
 
-    @pyqtSlot(float, float)
+    @Slot(float, float)
     def updatePointsPicked(self, x, y):
 
         if self.points_to_pick == 1:
@@ -364,7 +364,7 @@ class QtGeoreferencingWidget(QWidget):
         except ValueError:
             return False, "Please, indicate valid floating point numbers in the georeferencing coordinates."
 
-    @pyqtSlot()
+    @Slot()
     def apply(self):
 
         msgBox = QMessageBox(parent=self)

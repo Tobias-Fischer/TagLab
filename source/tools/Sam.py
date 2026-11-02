@@ -5,18 +5,18 @@ import cv2
 import sys
 import os
 from skimage import measure
-from PyQt5.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, Signal
 from source.Mask import paintMask, jointBox, jointMask, replaceMask, checkIntersection, intersectMask
 from source.genutils import qimageToNumpyArray, cropQImage
-from PyQt5.QtWidgets import QApplication, QMessageBox
-from PyQt5.QtGui import QPen, QBrush
+from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtGui import QPen, QBrush
 from source import genutils
 from source.tools.Tool import Tool
 from source.Blob import Blob
 
-from PyQt5.QtCore import Qt, QObject, QPointF, QRectF, QFileInfo, QDir, pyqtSlot, pyqtSignal, QT_VERSION_STR
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QPainterPath, QPen, QBrush, QCursor, QColor
-from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsItem, QGraphicsScene, QFileDialog, QGraphicsPixmapItem
+from PySide6.QtCore import Qt, QObject, QPointF, QRectF, QFileInfo, QDir, Slot, Signal
+from PySide6.QtGui import QImage, QPixmap, QPainter, QPainterPath, QPen, QBrush, QCursor, QColor
+from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsItem, QGraphicsScene, QFileDialog, QGraphicsPixmapItem
 
 
 sys.path.append("..")
@@ -26,7 +26,7 @@ import time
 
 class Sam(Tool):
 
-    samEnded = pyqtSignal()
+    samEnded = Signal()
     
 
     def __init__(self, viewerplus, pick_points):

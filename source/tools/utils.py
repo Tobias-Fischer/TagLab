@@ -20,8 +20,8 @@
 # THIS FILE CONTAINS UTILITY FUNCTION USED BY DIFFERENT TOOLS
 
 import io
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QImage, QPixmap, QBrush, QPen, qRgb, qRgba
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QImage, QPixmap, QBrush, QPen, qRgb, qRgba
 import numpy as np
 import cv2
 from skimage.draw import line

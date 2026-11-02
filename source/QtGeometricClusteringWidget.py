@@ -17,9 +17,9 @@
 # GNU General Public License (http://www.gnu.org/licenses/gpl.txt)
 # for more details.
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QPointF
-from PyQt5.QtGui import QColor, QPen, QBrush, QPolygonF
-from PyQt5.QtWidgets import (QWidget, QTextEdit, QPushButton, QHBoxLayout, QVBoxLayout, 
+from PySide6.QtCore import Qt, Slot, Signal, QPointF
+from PySide6.QtGui import QColor, QPen, QBrush, QPolygonF
+from PySide6.QtWidgets import (QWidget, QTextEdit, QPushButton, QHBoxLayout, QVBoxLayout, 
                               QGroupBox, QMessageBox, QComboBox, QCheckBox, QLabel, 
                               QTableWidget, QTableWidgetItem, QSplitter, QSpinBox,
                               QDoubleSpinBox, QApplication, QSizePolicy, QRadioButton, QButtonGroup)
@@ -48,7 +48,7 @@ class QtGeometricClusteringWidget(QWidget):
     Performs clustering analysis on selected regions based on geometric properties.
     """
 
-    closewidget = pyqtSignal()
+    closewidget = Signal()
 
     # -----------------------------------------------------------------------
     # TOOLTIPS — edit all tooltip text here
@@ -400,7 +400,7 @@ class QtGeometricClusteringWidget(QWidget):
         self.closewidget.emit()
         super(QtGeometricClusteringWidget, self).closeEvent(event)
 
-    @pyqtSlot(float, float)
+    @Slot(float, float)
     def onViewerClick(self, x, y):
         """Called on left mouse press in viewer. If the clicked blob is in the working set
         and the table is populated, selects the matching row in the results table."""
@@ -419,7 +419,7 @@ class QtGeometricClusteringWidget(QWidget):
                 self.resultsTable.scrollToItem(id_item)
                 break
 
-    @pyqtSlot()
+    @Slot()
     def onSelectionChanged(self):
         """Called when the selection changes in the viewer"""
         self.workingBlobs = self.activeviewer.selected_blobs[:]
@@ -589,7 +589,7 @@ class QtGeometricClusteringWidget(QWidget):
         if self.cbShowClusters.isChecked() and self.plotData is not None:
             self.updateViewerOverlay()
 
-    @pyqtSlot(int)
+    @Slot(int)
     def onPropertyChanged(self, state):
         """Called when a property checkbox is toggled. Invalidates clustering and refreshes plot."""
         self.clusterLabels = None

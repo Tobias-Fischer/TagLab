@@ -17,9 +17,9 @@
 #GNU General Public License (http://www.gnu.org/licenses/gpl.txt)          
 # for more details.                                               
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QImage, qRgb
-from PyQt5.QtWidgets import QWidget, QSizePolicy, QSlider, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtGui import QImage, qRgb
+from PySide6.QtWidgets import QWidget, QSizePolicy, QSlider, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from source.QtImageViewer import QtImageViewer
 from source.Blob import Blob
 from source import genutils
@@ -31,7 +31,7 @@ from skimage.morphology import flood
 
 class QtCrackWidget(QWidget):
 
-    closeCrackWidget = pyqtSignal()
+    closeCrackWidget = Signal()
 
     def __init__(self, map, annotations, blob, x, y, parent=None):
         super(QtCrackWidget, self).__init__(parent)
@@ -112,7 +112,7 @@ class QtCrackWidget(QWidget):
             # RESET CURRENT OPERATION
             self.closeCrackWidget.emit()
 
-    @pyqtSlot()
+    @Slot()
     def sliderToleranceChanged(self):
 
         # update tolerance value
@@ -159,7 +159,7 @@ class QtCrackWidget(QWidget):
 
         return created_blobs
 
-    @pyqtSlot()
+    @Slot()
     def preview(self):
 
         arr = self.input_arr.copy()

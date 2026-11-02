@@ -1,13 +1,13 @@
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox, QWidget, QFileDialog, QApplication
-from PyQt5.QtWidgets import QComboBox, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtWidgets import QMessageBox, QWidget, QFileDialog, QApplication
+from PySide6.QtWidgets import QComboBox, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 
 import os
 
 
 class QtExportCoralNetDataWidget(QWidget):
-    closewidget = pyqtSignal()
-    validchoices = pyqtSignal()
+    closewidget = Signal()
+    validchoices = Signal()
 
     def __init__(self, parent=None):
         super(QtExportCoralNetDataWidget, self).__init__(parent)
@@ -68,7 +68,7 @@ class QtExportCoralNetDataWidget(QWidget):
                             Qt.WindowCloseButtonHint |
                             Qt.WindowTitleHint)
 
-    @pyqtSlot()
+    @Slot()
     def get_directory(self):
         """
 
@@ -77,7 +77,7 @@ class QtExportCoralNetDataWidget(QWidget):
         if directory:
             self.editDir.setText(directory)
 
-    @pyqtSlot()
+    @Slot()
     def apply(self):
         """
 

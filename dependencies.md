@@ -9,7 +9,7 @@ The simplest way to install the required packages is through the Python package 
 | Package | Command |
 |---------|---------|
 |  (*) pytorch 1.5+ | `pip install torch==1.5.1 torchvision==0.6.1 -f https://download.pytorch.org/whl/torch_stable.html` |
-|  pyqt5 5.15+ |  `pip install pyqt5` |
+|  pyside6 6.5+ |  `pip install pyside6` |
 |  scikit-image  |  `pip install scikit-image` |
 |  scikit-learn  | `pip install scikit-learn` |
 |  pandas  | `pip install pandas` |

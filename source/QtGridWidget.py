@@ -19,15 +19,15 @@
 
 import os
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QImage, QImageReader, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
-from PyQt5.QtWidgets import QWidget, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, QSize, Slot, Signal
+from PySide6.QtGui import QImage, QImageReader, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
+from PySide6.QtWidgets import QWidget, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout
 from source.Grid import Grid
 
 
 class QtGridWidget(QWidget):
-    accepted = pyqtSignal()
+    accepted = Signal()
 
     def __init__(self, viewerplus, parent=None):
         super(QtGridWidget, self).__init__(parent)
@@ -135,7 +135,7 @@ class QtGridWidget(QWidget):
     def metersToPixels(self, m):
         return round(m / self.pixels_to_meters)
 
-    @pyqtSlot()
+    @Slot()
     def setGrid(self):
         for key, field in self.fields.items():
             self.data[key] = field["edit"].text()
@@ -149,7 +149,7 @@ class QtGridWidget(QWidget):
         except:
             self.grid.undrawGrid()
 
-    @pyqtSlot(float, float)
+    @Slot(float, float)
     def setGridPosition(self, x, y):
 
         xm = self.pixelsToMeters(x)
@@ -160,7 +160,7 @@ class QtGridWidget(QWidget):
 
         self.grid.setGridPosition(x, y)
 
-    @pyqtSlot()
+    @Slot()
     def toggleSetPosition(self):
 
         button = self.fields["position"]["button"]
@@ -171,7 +171,7 @@ class QtGridWidget(QWidget):
             self.viewerplus.leftMouseButtonPressed[float, float].disconnect()
 
 
-    @pyqtSlot()
+    @Slot()
     def apply(self):
 
         button = self.fields["position"]["button"]

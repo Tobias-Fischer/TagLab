@@ -5,10 +5,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QTextEdit, QLineEdit, QSlider, QMenu, QCheckBox, QMenuBar, QAction, QDialog
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen, QColor, QBrush, QPolygonF
-from PyQt5.QtCore import pyqtSignal, Qt, QBuffer, QPointF
-from PyQt5.QtWidgets import QFileDialog
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy, QTextEdit, QLineEdit, QSlider, QMenu, QCheckBox, QMenuBar, QDialog
+from PySide6.QtGui import QPixmap, QImage, QPainter, QPen, QColor, QBrush, QPolygonF
+from PySide6.QtCore import Signal, Qt, QBuffer, QPointF
+from PySide6.QtWidgets import QFileDialog
 
 import csv
 import os
@@ -32,9 +33,9 @@ from skimage.draw import line
 from scipy.spatial import KDTree
 
 # import svgwrite
-# from PyQt5.QtSvg import QSvgRenderer
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QColorDialog
+# from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QColorDialog
 # from subprocess import check_call
 
 # from itertools import combinations
@@ -43,7 +44,7 @@ from PyQt5.QtWidgets import QColorDialog
 TEXTBOX_H = 100
 class RowsWidget(QWidget):
 
-    closeRowsWidget = pyqtSignal()
+    closeRowsWidget = Signal()
 
     # def __init__(self, image_cropped, created_blobs, offset, parent=None):
     def __init__(self, cropped_image, mask_array, work_blobs, work_area, parent = None, screen_size = None):    
@@ -1703,7 +1704,7 @@ class RowsWidget(QWidget):
             
             menu.addAction(self.actionShowLines)
 
-            menu.exec_(self.line_viewer.mapToGlobal(position))
+            menu.exec(self.line_viewer.mapToGlobal(position))
 
     def toggleShowMask(self, checked):
         if checked:
@@ -1869,7 +1870,7 @@ class RowsWidget(QWidget):
             menu.addAction(self.actionShowBranch)
             menu.addAction(self.actionComputeTopBottom)
 
-            menu.exec_(self.skel_viewer.mapToGlobal(position))
+            menu.exec(self.skel_viewer.mapToGlobal(position))
     
     def toggleShowSkel(self, checked):
         if checked:
@@ -2127,7 +2128,7 @@ class RowsWidget(QWidget):
         # # Set initial state
         # self.onExportFormatChanged(dialog)
 
-        if dialog.exec_() != QDialog.Accepted:
+        if dialog.exec() != QDialog.Accepted:
             return
 
         options = dialog.getExportOptions()

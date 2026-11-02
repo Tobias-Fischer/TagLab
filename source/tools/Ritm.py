@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QApplication, QMessageBox
-from PyQt5.QtGui import QPen, QBrush
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtGui import QPen, QBrush
 
 from source.tools.Tool import Tool
 from source.Mask import paintMask, jointBox, jointMask, replaceMask, checkIntersection, intersectMask

@@ -19,16 +19,16 @@
 
 import os
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
-from PyQt5.QtWidgets import QWidget, QCheckBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
+from PySide6.QtWidgets import QWidget, QCheckBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout,  QRadioButton, QLayout
 
 
 class QtExportAnnAsTable(QWidget):
 
-    closewidget = pyqtSignal()
-    mode = pyqtSignal(str)
+    closewidget = Signal()
+    mode = Signal(str)
 
     def __init__(self, parent=None):
         super(QtExportAnnAsTable, self).__init__(parent)

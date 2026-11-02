@@ -20,8 +20,8 @@
 # THIS FILE CONTAINS UTILITY FUNCTIONS, E.G. CONVERSION BETWEEN DATA TYPES, BASIC OPERATIONS, ETC.
 
 import io
-from PyQt5.QtCore import Qt, QObject, QMetaObject, QMetaMethod
-from PyQt5.QtGui import QImage, QPixmap, qRgb, qRgba
+from PySide6.QtCore import Qt, QObject, QMetaObject, QMetaMethod
+from PySide6.QtGui import QImage, QPixmap, qRgb, qRgba
 import numpy as np
 import cv2
 from skimage.draw import line

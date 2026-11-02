@@ -1,15 +1,15 @@
 import numpy as np
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QFont
-from PyQt5.QtWidgets import QGraphicsItem
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPen, QFont
+from PySide6.QtWidgets import QGraphicsItem
 from source.tools.Tool import Tool
-from PyQt5.QtCore import pyqtSlot, pyqtSignal
+from PySide6.QtCore import Slot, Signal
 
 
 class SelectArea(Tool):
 
-    rectChanged = pyqtSignal(int, int, int, int)
-    released = pyqtSignal()
+    rectChanged = Signal(int, int, int, int)
+    released = Signal()
 
     def __init__(self, viewerplus, pick_points):
         super(SelectArea, self).__init__(viewerplus)
@@ -118,7 +118,7 @@ class SelectArea(Tool):
 
         self.area_style.setCosmetic(True)
 
-    @pyqtSlot(int, int, int, int)
+    @Slot(int, int, int, int)
     def setSelectionRectangle(self, x, y, w, h):
 
         self.pick_points.reset()          # markers are reset

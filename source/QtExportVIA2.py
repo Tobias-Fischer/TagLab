@@ -17,8 +17,8 @@
 # GNU General Public License (http://www.gnu.org/licenses/gpl.txt)
 # for more details.
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QDialog, QFileDialog, QVBoxLayout, QHBoxLayout,
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QDialog, QFileDialog, QVBoxLayout, QHBoxLayout,
                              QComboBox, QCheckBox, QLabel, QPushButton, QMessageBox)
 import numpy as np
 import json

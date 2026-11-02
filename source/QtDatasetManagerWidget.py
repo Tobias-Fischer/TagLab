@@ -18,9 +18,9 @@
 # for more details.
 
 
-from PyQt5.Qt import QDesktopServices
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QUrl
-from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLineEdit, QLabel, QPushButton, QProgressDialog,\
+from PySide6.QtGui import QDesktopServices
+from PySide6.QtCore import Qt, Slot, Signal, QUrl
+from PySide6.QtWidgets import QApplication, QWidget, QFileDialog, QLineEdit, QLabel, QPushButton, QProgressDialog,\
     QHBoxLayout, QVBoxLayout, QMessageBox, QGroupBox, QGridLayout, QSizePolicy, QRadioButton, QCheckBox, QLayout, QTextEdit, QStackedWidget
 import os
 import glob
@@ -39,7 +39,7 @@ from source.QtProgressBarCustom import QtProgressBarCustom
 import tempfile
 from collections import Counter, defaultdict
 
-from PyQt5.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog
 
 class QtDatasetManagerWidget(QDialog):
 
@@ -794,7 +794,7 @@ class QtDatasetManagerWidget(QDialog):
         self.resetModelState()
         super().closeEvent(event)
 
-    @pyqtSlot()
+    @Slot()
     def chooseDatasetOutputFolder(self):
 
         folderName = QFileDialog.getExistingDirectory(self, "Choose Your Dataset Folder", "")
@@ -2660,7 +2660,7 @@ class QtDatasetManagerWidget(QDialog):
 
         return content
 
-    @pyqtSlot()
+    @Slot()
     def help(self):
 
         url = QUrl("http://taglab.isti.cnr.it/docs")
@@ -2925,7 +2925,7 @@ class QtDatasetManagerWidget(QDialog):
             self.editAmount1.clear()
             self.editAmount2.clear()
 
-    @pyqtSlot()
+    @Slot()
     def subsample(self, TRAINING_FOLDER_IMAGES, TRAINING_FOLDER_LABELS, TRAINING_OUTPUT_IMAGES, TRAINING_OUTPUT_LABELS, flag):
 
         """
@@ -3054,7 +3054,7 @@ class QtDatasetManagerWidget(QDialog):
                     padding: 4px 12px;
                 }
             """)
-    @pyqtSlot()
+    @Slot()
     def updateStatistics(self):
 
         folderName = self.editInputDatasetFolder.text()

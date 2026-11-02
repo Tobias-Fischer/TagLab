@@ -1,17 +1,17 @@
-from PyQt5 import QtCore, QtGui
+from PySide6 import QtCore, QtGui
 import sys
 from pprint import pprint
-from PyQt5.QtWidgets import  QWidget,QGridLayout,QApplication
+from PySide6.QtWidgets import  QWidget,QGridLayout,QApplication
 
 import numpy as np
-from PyQt5.QtCore import Qt, QSize, QMargins, QDir, QPoint, QPointF, QRectF, QTimer, pyqtSlot, pyqtSignal, QObject, QSettings, QFileInfo, QModelIndex
-from PyQt5.QtGui import QFontDatabase, QFont, QPen, QBrush, QColor
-from PyQt5.QtWidgets import QGraphicsItem, QGraphicsTextItem
+from PySide6.QtCore import Qt, QSize, QMargins, QDir, QPoint, QPointF, QRectF, QTimer, Slot, Signal, QObject, QSettings, QFileInfo, QModelIndex
+from PySide6.QtGui import QFontDatabase, QFont, QPen, QBrush, QColor
+from PySide6.QtWidgets import QGraphicsItem, QGraphicsTextItem
 
 
 class MyGText(QGraphicsTextItem):
 
-    focusOut = pyqtSignal()
+    focusOut = Signal()
 
     def __init__(self, parent=None, scene=None):
         super(QGraphicsTextItem, self).__init__(parent, scene)
@@ -198,7 +198,7 @@ class Grid(QObject):
 
         self.drawGrid()
 
-    @pyqtSlot()
+    @Slot()
     def updateNotes(self):
         """
         When a text note is moved or edited the corresponding information are update here

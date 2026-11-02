@@ -1,3 +1,4 @@
+import array
 import math
 import inspect
 from typing import Optional, Tuple, List
@@ -6,13 +7,28 @@ import numpy as np
 import cv2
 import rasterio as rio
 
-from PyQt5.QtCore import pyqtSignal, Qt, pyqtSlot, QLineF, QRectF, QPoint, QPointF
-from PyQt5.QtGui import QImage, QMouseEvent, QPen, QFont, QCloseEvent, QKeyEvent, QOpenGLShaderProgram, QOpenGLShader, \
-    QOpenGLVersionProfile, QMatrix4x4, QWheelEvent, QOpenGLTexture, QOpenGLFramebufferObject, QVector4D, QVector2D
-from PyQt5.QtWidgets import QWidget, QHeaderView, QSizePolicy, QVBoxLayout, QLabel, QLineEdit, QTableWidget, QTableView, \
+from PySide6.QtCore import Signal, Qt, Slot, QLineF, QRectF, QPoint, QPointF
+from PySide6.QtGui import QImage, QMouseEvent, QPen, QFont, QCloseEvent, QKeyEvent, QMatrix4x4, QWheelEvent, QVector4D, QVector2D
+from PySide6.QtWidgets import QWidget, QHeaderView, QSizePolicy, QVBoxLayout, QLabel, QLineEdit, QTableWidget, QTableView, \
     QHBoxLayout, QTableWidgetItem, QComboBox, QSlider, QApplication, \
-    QCheckBox, QPushButton, QMessageBox, QGraphicsTextItem, QGraphicsItem, QOpenGLWidget, QGraphicsRectItem
-from PyQt5._QOpenGLFunctions_2_0 import QOpenGLFunctions_2_0
+    QCheckBox, QPushButton, QMessageBox, QGraphicsTextItem, QGraphicsItem, QGraphicsRectItem
+from PySide6.QtOpenGL import QOpenGLShaderProgram, QOpenGLShader, QOpenGLVersionProfile, QOpenGLTexture, QOpenGLFramebufferObject, QOpenGLVersionFunctionsFactory, QOpenGLBuffer, \
+    QOpenGLFunctions_2_0
+from PySide6.QtOpenGLWidgets import QOpenGLWidget
+
+# The Qt6 bindings do not export the GL_* constants on the function-table classes, so we define the few we need.
+GL_FLOAT = 0x1406
+GL_TEXTURE0 = 0x84C0
+GL_TEXTURE1 = 0x84C1
+GL_TEXTURE_2D = 0x0DE1
+GL_COLOR_BUFFER_BIT = 0x4000
+GL_TRIANGLE_STRIP = 0x0005
+GL_POINTS = 0x0000
+GL_BLEND = 0x0BE2
+GL_SRC_ALPHA = 0x0302
+GL_ONE_MINUS_SRC_ALPHA = 0x0303
+GL_POINT_SPRITE = 0x8861
+GL_VERTEX_PROGRAM_POINT_SIZE = 0x8642
 
 from source.QtImageViewer import QtImageViewer
 
@@ -96,13 +112,14 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
     REF_POINT_COLOR = QVector4D(1.0, 1.0, 1.0, 1.0)
     ALI_POINT_COLOR = QVector4D(0.0, 1.0, 1.0, 1.0)
 
-    QUAD_V = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-    QUAD_T = [(0, 1), (0, 0), (1, 1), (1, 0)]
+    QUAD_V = [QVector2D(-1, -1), QVector2D(-1, 1), QVector2D(1, -1), QVector2D(1, 1)]
+    QUAD_T = [QVector2D(0, 1), QVector2D(0, 0), QVector2D(1, 1), QVector2D(1, 0)]
 
     def __init__(self, vSrc, fSrc, parent=None):
         super(QtSimpleOpenGlShaderViewer, self).__init__(parent)
         # Open GL
         self.gl: Optional[QOpenGLFunctions_2_0] = None
+        self.attributeBuffers = {}
         self.programs: List[QOpenGLShaderProgram] = []
         self.textures: List[QOpenGLTexture] = []
         self.framebuffers: List[QOpenGLFramebufferObject] = []
@@ -156,6 +173,22 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
         # Return newly created program
         return program if program.isLinked() else None
 
+    def __setAttributeArray(self, program: QOpenGLShaderProgram, location: int, vectors: List[QVector2D]) -> None:
+        """
+        Uploads a list of 2D vectors as a vertex attribute array (through a vertex buffer: the Qt6 bindings cannot
+        pass a raw client-side pointer).
+        """
+        data = array.array('f', [c for v in vectors for c in (v.x(), v.y())])
+        buf = self.attributeBuffers.get((id(program), location))
+        if buf is None:
+            buf = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
+            buf.create()
+            self.attributeBuffers[(id(program), location)] = buf
+        buf.bind()
+        buf.allocate(data.tobytes(), data.itemsize * len(data))
+        program.setAttributeBuffer(location, GL_FLOAT, 0, 2)
+        buf.release()
+
     def initializeGL(self) -> None:
         """
         Sets up the OpenGL resources and state.
@@ -164,7 +197,9 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
         # Load opengl for requested profile
         profile = QOpenGLVersionProfile()
         profile.setVersion(2, 0)
-        self.gl = self.context().versionFunctions(versionProfile=profile)
+        self.gl = QOpenGLVersionFunctionsFactory.get(profile, self.context())
+        if self.gl is None:
+            raise RuntimeError("OpenGL 2.0 (compatibility profile) is not available")
         self.gl.initializeOpenGLFunctions()
         # Create Program #0 (default pass)
         self.programs.append(self.__createProgram(
@@ -198,10 +233,10 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
         checkGL(self.framebuffers[i], self.framebuffers[i].bind())
         checkGL(self.programs[0], self.programs[0].bind())
         # Bind texture
-        self.gl.glActiveTexture(self.gl.GL_TEXTURE0)
-        self.gl.glBindTexture(self.gl.GL_TEXTURE_2D, self.textures[i].textureId())
+        self.gl.glActiveTexture(GL_TEXTURE0)
+        self.gl.glBindTexture(GL_TEXTURE_2D, self.textures[i].textureId())
         # Update uniforms
-        self.programs[0].setUniformValue("uTex", 0)
+        self.programs[0].setUniformValue1i("uTex", 0)
         self.programs[0].setUniformValue("uMatrix", mat)
         # Compute sizes
         maxw = max(self.sizeL.x(), self.sizeR.x())
@@ -210,14 +245,13 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
         hratio = maxh / (self.sizeL.y() if i == 0 else self.sizeR.y())
         # Reload quad data
         self.programs[0].enableAttributeArray(0)
-        self.programs[0].setAttributeArray(0, QtSimpleOpenGlShaderViewer.QUAD_V.copy())
+        self.__setAttributeArray(self.programs[0], 0, QtSimpleOpenGlShaderViewer.QUAD_V)
         self.programs[0].enableAttributeArray(1)
-        self.programs[0].setAttributeArray(1,
-                                           [(x * wratio, y * hratio) for (x, y) in QtSimpleOpenGlShaderViewer.QUAD_T])
+        self.__setAttributeArray(self.programs[0], 1, [QVector2D(v.x() * wratio, v.y() * hratio) for v in QtSimpleOpenGlShaderViewer.QUAD_T])
         # Draw quad
         self.gl.glClearColor(0.0, 0.0, 0.0, 0.0)
-        self.gl.glClear(self.gl.GL_COLOR_BUFFER_BIT)
-        self.gl.glDrawArrays(self.gl.GL_TRIANGLE_STRIP, 0, 4)
+        self.gl.glClear(GL_COLOR_BUFFER_BIT)
+        self.gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
         # Release FB and Program
         checkGL(self.framebuffers[i], self.framebuffers[i].release())
         self.programs[0].release()
@@ -237,25 +271,25 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
         # Bind Program
         checkGL(self.programs[1], self.programs[1].bind())
         # Bind Textures (from Frame Buffers)
-        self.gl.glActiveTexture(self.gl.GL_TEXTURE0)
-        self.gl.glBindTexture(self.gl.GL_TEXTURE_2D, self.framebuffers[0].texture())
-        self.gl.glActiveTexture(self.gl.GL_TEXTURE1)
-        self.gl.glBindTexture(self.gl.GL_TEXTURE_2D, self.framebuffers[1].texture())
+        self.gl.glActiveTexture(GL_TEXTURE0)
+        self.gl.glBindTexture(GL_TEXTURE_2D, self.framebuffers[0].texture())
+        self.gl.glActiveTexture(GL_TEXTURE1)
+        self.gl.glBindTexture(GL_TEXTURE_2D, self.framebuffers[1].texture())
         # Update uniforms
         self.programs[1].setUniformValue("uMatrix", mat)
-        self.programs[1].setUniformValue("uTexL", 0)
-        self.programs[1].setUniformValue("uTexR", 1)
+        self.programs[1].setUniformValue1i("uTexL", 0)
+        self.programs[1].setUniformValue1i("uTexR", 1)
         # Pass custom uniforms
         self.customUniforms(self.programs[1])
         # Reload quad data
         self.programs[1].enableAttributeArray(0)
-        self.programs[1].setAttributeArray(0, QtSimpleOpenGlShaderViewer.QUAD_V.copy())
+        self.__setAttributeArray(self.programs[1], 0, QtSimpleOpenGlShaderViewer.QUAD_V)
         self.programs[1].enableAttributeArray(1)
-        self.programs[1].setAttributeArray(1, QtSimpleOpenGlShaderViewer.QUAD_T.copy())
+        self.__setAttributeArray(self.programs[1], 1, QtSimpleOpenGlShaderViewer.QUAD_T)
         # Draw quad
         self.gl.glClearColor(0.0, 0.0, 0.0, 1.0)
-        self.gl.glClear(self.gl.GL_COLOR_BUFFER_BIT)
-        self.gl.glDrawArrays(self.gl.GL_TRIANGLE_STRIP, 0, 4)
+        self.gl.glClear(GL_COLOR_BUFFER_BIT)
+        self.gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
         # Release Program
         self.programs[1].release()
 
@@ -274,19 +308,19 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
         # Update uniforms
         self.pointProgram.setUniformValue("uMatrix", mat)
         self.pointProgram.setUniformValue("uCol", col)
-        self.pointProgram.setUniformValue("uSize", 10.0)
+        self.pointProgram.setUniformValue1f("uSize", 10.0)
         # Reload points data
         self.pointProgram.enableAttributeArray(0)
-        self.pointProgram.setAttributeArray(0, self.points[i])
+        self.__setAttributeArray(self.pointProgram, 0, self.points[i])
         # Draw points
-        self.gl.glEnable(self.gl.GL_BLEND)
-        self.gl.glBlendFunc(self.gl.GL_SRC_ALPHA, self.gl.GL_ONE_MINUS_SRC_ALPHA)
-        self.gl.glEnable(self.gl.GL_POINT_SPRITE)
-        self.gl.glEnable(self.gl.GL_VERTEX_PROGRAM_POINT_SIZE)
-        self.gl.glDrawArrays(self.gl.GL_POINTS, 0, len(self.points[i]))
-        self.gl.glDisable(self.gl.GL_VERTEX_PROGRAM_POINT_SIZE)
-        self.gl.glDisable(self.gl.GL_POINT_SPRITE)
-        self.gl.glDisable(self.gl.GL_BLEND)
+        self.gl.glEnable(GL_BLEND)
+        self.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        self.gl.glEnable(GL_POINT_SPRITE)
+        self.gl.glEnable(GL_VERTEX_PROGRAM_POINT_SIZE)
+        self.gl.glDrawArrays(GL_POINTS, 0, len(self.points[i]))
+        self.gl.glDisable(GL_VERTEX_PROGRAM_POINT_SIZE)
+        self.gl.glDisable(GL_POINT_SPRITE)
+        self.gl.glDisable(GL_BLEND)
         # Release Program
         self.pointProgram.release()
 
@@ -418,7 +452,8 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
         :param: referencePoints the list of points on the "reference image"
         :param: pointsToAlign the list of points on the "image to align"
         """
-        # Create textures
+        # Create textures (Qt6 needs the GL context to be current to upload them)
+        self.makeCurrent()
         self.textures = [
             QOpenGLTexture(referenceImg),
             QOpenGLTexture(imgToAlign)
@@ -428,6 +463,7 @@ class QtSimpleOpenGlShaderViewer(QOpenGLWidget):
             tex.setMinMagFilters(QOpenGLTexture.Nearest, QOpenGLTexture.Nearest)
             tex.setWrapMode(QOpenGLTexture.ClampToEdge)
             tex.generateMipMaps()
+        self.doneCurrent()
         # Store image sizes
         self.sizeL = sizeL
         self.sizeR = sizeR
@@ -553,7 +589,7 @@ class AlphaPreviewViewer(QtSimpleOpenGlShaderViewer):
         :param: program the ShaderProgram to use to upload custom uniforms
         """
         # Update uniforms
-        program.setUniformValue("uAlpha", self.alpha)
+        program.setUniformValue1f("uAlpha", self.alpha)
 
     def updateAlpha(self, alpha: float) -> None:
         """
@@ -651,7 +687,7 @@ class GrayPreviewViewer(QtSimpleOpenGlShaderViewer):
         :param: program the ShaderProgram to use to upload custom uniforms
         """
         # Update uniforms
-        program.setUniformValue("uThr", self.thr)
+        program.setUniformValue1f("uThr", self.thr)
 
     def updateThreshold(self, thr: int) -> None:
         """
@@ -824,7 +860,7 @@ class QtAlignmentToolWidget(QWidget):
     This tool contains also a preview page that shows a "preview" of the results before confirming the alignment.
     """
 
-    closed = pyqtSignal()
+    closed = Signal()
 
     # [SCALE] # Number of samples used when calculating approx scale
     # [SCALE] SCALE_SAMPLING_COUNT = 64
@@ -1301,7 +1337,7 @@ class QtAlignmentToolWidget(QWidget):
         # Default
         super(QtAlignmentToolWidget, self).keyReleaseEvent(event)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def leftImageChanges(self, index: int) -> None:
         """
         Callback called when the user select a new image for the left view.
@@ -1318,7 +1354,7 @@ class QtAlignmentToolWidget(QWidget):
             # Forward to private method
             self.__updateImgViewers()
 
-    @pyqtSlot(int)
+    @Slot(int)
     def rightImageChanges(self, index: int) -> None:
         """
         Callback called when the user select a new image for the right view.
@@ -1335,7 +1371,7 @@ class QtAlignmentToolWidget(QWidget):
             # Forward to private method
             self.__updateImgViewers()
 
-    @pyqtSlot(float, float, float)
+    @Slot(float, float, float)
     def leftImgViewerParamsChanges(self, posx: float, posy: float, zoom: float) -> None:
         """
         Callback called on view params changes.
@@ -1352,7 +1388,7 @@ class QtAlignmentToolWidget(QWidget):
         if self.syncEnabled:
             self.rightImgViewer.setViewParameters(posx, posy, zoom)
 
-    @pyqtSlot(float, float, float)
+    @Slot(float, float, float)
     def rightImgViewerParamsChanges(self, posx: float, posy: float, zoom: float) -> None:
         """
         Callback called on view params changes.
@@ -1369,7 +1405,7 @@ class QtAlignmentToolWidget(QWidget):
         if self.syncEnabled:
             self.leftImgViewer.setViewParameters(posx, posy, zoom)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def toggleSync(self, value: int) -> None:
         """
         Callback called when the sync mode is turned on/off.
@@ -1379,7 +1415,7 @@ class QtAlignmentToolWidget(QWidget):
         self.syncEnabled = value
         # Changes can be forwarded if needed by storing last values and forcing update here
 
-    @pyqtSlot(int)
+    @Slot(int)
     def toggleMarkersVisibility(self, value: int) -> None:
         """
         Callback called when the checkbox for marker visibility it toggled.
@@ -1389,7 +1425,7 @@ class QtAlignmentToolWidget(QWidget):
         self.leftPreviewViewer.setPointsVisibility(value != 0)
         self.rightPreviewViewer.setPointsVisibility(value != 0)
 
-    # [SCALE] @pyqtSlot(int)
+    # [SCALE] @Slot(int)
     # [SCALE] def toggleScaleLock(self, value: int) -> None:
     # [SCALE]     """
     # [SCALE]     Callback called when the checkbox that allow scale is toggled.
@@ -1403,7 +1439,7 @@ class QtAlignmentToolWidget(QWidget):
     # [SCALE]     # Update preview (if needed)
     # [SCALE]     self.__updatePreview()
 
-    @pyqtSlot()
+    @Slot()
     def onBackToEditRequested(self) -> None:
         """
         Callback called when the Preview Mode is turned on/off.
@@ -1415,7 +1451,7 @@ class QtAlignmentToolWidget(QWidget):
         # Hide preview widgets
         self.__togglePreviewMode(False)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def previewAlphaValueChanges(self, value: int) -> None:
         """
         Callback called when the alpha value changes.
@@ -1429,7 +1465,7 @@ class QtAlignmentToolWidget(QWidget):
         self.error_table_flag = False
         self.__updatePreview()
 
-    @pyqtSlot()
+    @Slot()
     def onXValueIncremented(self) -> None:
         """
         Callback called when the x value of the offset changes by +1.
@@ -1437,7 +1473,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.xSlider.setValue(int(self.T[0] + 1))
 
-    @pyqtSlot()
+    @Slot()
     def onXValueDecremented(self) -> None:
         """
         Callback called when the x value of the offset changes by -1.
@@ -1445,7 +1481,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.xSlider.setValue(int(self.T[0] - 1))
 
-    @pyqtSlot(int)
+    @Slot(int)
     def xOffsetChanges(self, value: int) -> None:
         """
         Callback called when the x value of the offset changes.
@@ -1459,7 +1495,7 @@ class QtAlignmentToolWidget(QWidget):
         self.error_table_flag = True
         self.__updatePreview()
 
-    @pyqtSlot()
+    @Slot()
     def onYValueIncremented(self) -> None:
         """
         Callback called when the y value of the offset changes by +1.
@@ -1467,7 +1503,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.ySlider.setValue(int(self.T[1] + 1))
 
-    @pyqtSlot()
+    @Slot()
     def onYValueDecremented(self) -> None:
         """
         Callback called when the y value of the offset changes by -1.
@@ -1475,7 +1511,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.ySlider.setValue(int(self.T[1] - 1))
 
-    @pyqtSlot(int)
+    @Slot(int)
     def yOffsetChanges(self, value: int) -> None:
         """
         Callback called when the y value of the offset changes.
@@ -1489,7 +1525,7 @@ class QtAlignmentToolWidget(QWidget):
         self.error_table_flag = True
         self.__updatePreview()
 
-    @pyqtSlot()
+    @Slot()
     def onRotValueIncremented(self) -> None:
         """
         Callback called when the value of the rotation changes by +1.
@@ -1497,7 +1533,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.rSlider.setValue(int(self.R + 1))
 
-    @pyqtSlot()
+    @Slot()
     def onRotValueDecremented(self) -> None:
         """
         Callback called when the value of the rotation changes by -1.
@@ -1505,7 +1541,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.rSlider.setValue(int(self.R - 1))
 
-    # [SCALE] @pyqtSlot()
+    # [SCALE] @Slot()
     # [SCALE] def onScaleValueIncremented(self) -> None:
     # [SCALE]     """
     # [SCALE]     Callback called when the value of the scale should be increase.
@@ -1513,7 +1549,7 @@ class QtAlignmentToolWidget(QWidget):
     # [SCALE]     # Forward
     # [SCALE]     self.sSlider.setValue(self.S + 1)
 
-    # [SCALE] @pyqtSlot()
+    # [SCALE] @Slot()
     # [SCALE] def onScaleValueDecremented(self) -> None:
     # [SCALE]     """
     # [SCALE]     Callback called when the value of the scale should be decreased.
@@ -1521,7 +1557,7 @@ class QtAlignmentToolWidget(QWidget):
     # [SCALE]     # Forward
     # [SCALE]     self.sSlider.setValue(self.S - 1)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def rotationAngleChanges(self, value: int) -> None:
         """
         Callback called when the value of the rotation changes.
@@ -1534,7 +1570,7 @@ class QtAlignmentToolWidget(QWidget):
         self.error_table_flag = True
         self.__updatePreview()
 
-    # [SCALE] @pyqtSlot(int)
+    # [SCALE] @Slot(int)
     # [SCALE] def scaleValueChanges(self, value: int) -> None:
     # [SCALE]     """
     # [SCALE]     Callback called when the value of the scale changes.
@@ -1547,7 +1583,7 @@ class QtAlignmentToolWidget(QWidget):
     # [SCALE]     self.error_table_flag = True
     # [SCALE]     self.__updatePreview()
 
-    @pyqtSlot(int)
+    @Slot(int)
     def thresholdValueChanges(self, value: int) -> None:
         """
         Callback called when the threshold value changes.
@@ -1561,7 +1597,7 @@ class QtAlignmentToolWidget(QWidget):
         self.error_table_flag = False
         self.__updatePreview()
 
-    @pyqtSlot(QMouseEvent)
+    @Slot(QMouseEvent)
     def onLeftViewMouseDown(self, event: QMouseEvent) -> None:
         """
         Callback called on a mouse down event over the left viewer.
@@ -1570,7 +1606,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.__onMouseDown(event, True)
 
-    @pyqtSlot(QMouseEvent)
+    @Slot(QMouseEvent)
     def onLeftViewMouseMove(self, event: QMouseEvent) -> None:
         """
         Callback called on a mouse move event over the left viewer.
@@ -1579,7 +1615,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.__onMouseMove(event, True)
 
-    @pyqtSlot(QMouseEvent)
+    @Slot(QMouseEvent)
     def onLeftViewMouseUp(self, event: QMouseEvent) -> None:
         """
         Callback called on a mouse up event over the left viewer.
@@ -1588,7 +1624,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.__onMouseUp(event, True)
 
-    @pyqtSlot()
+    @Slot()
     def onLeftViewMouseOut(self) -> None:
         """
         Callback called when the mouse left the left viewer space.
@@ -1596,7 +1632,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.__onMouseOut(True)
 
-    @pyqtSlot(QMouseEvent)
+    @Slot(QMouseEvent)
     def onRightViewMouseDown(self, event: QMouseEvent) -> None:
         """
         Callback called on a mouse down event over the right viewer.
@@ -1605,7 +1641,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.__onMouseDown(event, False)
 
-    @pyqtSlot(QMouseEvent)
+    @Slot(QMouseEvent)
     def onRightViewMouseMove(self, event: QMouseEvent) -> None:
         """
         Callback called on a mouse move event over the right viewer.
@@ -1614,7 +1650,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.__onMouseMove(event, False)
 
-    @pyqtSlot(QMouseEvent)
+    @Slot(QMouseEvent)
     def onRightViewMouseUp(self, event: QMouseEvent) -> None:
         """
         Callback called on a mouse up event over the right viewer.
@@ -1623,7 +1659,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.__onMouseUp(event, False)
 
-    @pyqtSlot()
+    @Slot()
     def onRightViewMouseOut(self) -> None:
         """
         Callback called when the mouse left the right viewer space.
@@ -1631,7 +1667,7 @@ class QtAlignmentToolWidget(QWidget):
         # Forward
         self.__onMouseOut(False)
 
-    @pyqtSlot()
+    @Slot()
     def onResetTransformations(self) -> None:
         """
         Callback called when the user reset transformations (to improve quality of life in the manual pipeline)
@@ -1644,7 +1680,7 @@ class QtAlignmentToolWidget(QWidget):
         # Redraw preview
         self.__updatePreview()
 
-    @pyqtSlot()
+    @Slot()
     def onClearMarkersRequested(self) -> None:
         """
         Callback called when the user request the auto alignment process to start.
@@ -1653,7 +1689,7 @@ class QtAlignmentToolWidget(QWidget):
         self.__deleteAllMarkers()
         self.__updateMarkers(keepAlgResults=False)
 
-    @pyqtSlot()
+    @Slot()
     def onAutoAlignRequested(self) -> None:
         """
         Callback called when the user request the auto alignment process to start.
@@ -1674,7 +1710,7 @@ All markers must be valid to proceed.
         self.__initializePreview()
         self.__updatePreview()
 
-    @pyqtSlot()
+    @Slot()
     def onConfirmAlignment(self) -> None:
         """
         Callback called when the user request to confirm and save alignment data.
@@ -2405,7 +2441,7 @@ All markers must be valid to proceed.
         rightPoints = [QPointF(marker.rViewPos.x() / maxw, marker.rViewPos.y() / maxh) for marker in self.markers]
         return leftPoints, rightPoints
 
-    @pyqtSlot(QTableWidgetItem)
+    @Slot(QTableWidgetItem)
     def updateComputation(self, item_changed):
 
         flag_update_table = True

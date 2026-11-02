@@ -1,5 +1,5 @@
 from source.QtBricksWidget import QtBricksWidget
-from PyQt5.QtCore import Qt, pyqtSlot
+from PySide6.QtCore import Qt, Slot
 from source.tools.Tool import Tool
 
 class BricksSegmentation(Tool):
@@ -50,11 +50,11 @@ class BricksSegmentation(Tool):
             self.viewerplus.bricksWidget = bricksWidget
 
 
-    @pyqtSlot()
+    @Slot()
     def bricksCancel(self):
         self.viewerplus.resetTools()
 
-    @pyqtSlot()
+    @Slot()
     def bricksApply(self):
 
         new_blobs = self.viewerplus.bricksWidget.apply()

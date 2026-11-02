@@ -1,13 +1,13 @@
 import numpy as np
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QPen, QFont
-from PyQt5.QtWidgets import QGraphicsItem
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QPen, QFont
+from PySide6.QtWidgets import QGraphicsItem
 from source.tools.Tool import Tool
 
 class Ruler(Tool):
 
-    measuretaken = pyqtSignal(float)
-    measuretakencoords = pyqtSignal(float, float, float, float)
+    measuretaken = Signal(float)
+    measuretakencoords = Signal(float, float, float, float)
 
     def __init__(self, viewerplus, pick_points ):
         super(Ruler, self).__init__(viewerplus)

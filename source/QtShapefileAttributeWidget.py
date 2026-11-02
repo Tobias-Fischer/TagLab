@@ -1,7 +1,8 @@
-from PyQt5.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRegExp, QModelIndex, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QSizePolicy,QCheckBox, QPushButton,QRadioButton, QComboBox, QLabel, QTableView, QHeaderView, QMessageBox,\
-    QHBoxLayout, QVBoxLayout, QAbstractItemView, QStyledItemDelegate, QAction, QMenu, QToolButton, QGridLayout, QLineEdit
-from PyQt5.QtGui import QColor
+from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRegularExpression, QModelIndex, Slot, Signal
+from PySide6.QtWidgets import QWidget, QSizePolicy,QCheckBox, QPushButton,QRadioButton, QComboBox, QLabel, QTableView, QHeaderView, QMessageBox,\
+    QHBoxLayout, QVBoxLayout, QAbstractItemView, QStyledItemDelegate, QMenu, QToolButton, QGridLayout, QLineEdit
+from PySide6.QtGui import QColor
 from pathlib import Path
 
 class PandasModelShape(QAbstractTableModel):
@@ -38,7 +39,7 @@ class QtAttributeWidget(QWidget):
     # Data.columns - returns fields names
     # Data.pop('class') - returns column 'class'
 
-    shapefilechoices = pyqtSignal(str, list, list)
+    shapefilechoices = Signal(str, list, list)
 
     def __init__(self, data, parent=None):
         super(QtAttributeWidget, self).__init__(parent)
@@ -167,12 +168,12 @@ class QtAttributeWidget(QWidget):
         self.setWindowTitle("Shapefile Attribute Editor")
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint | Qt.WindowTitleHint)
 
-    @pyqtSlot(str)
+    @Slot(str)
     def classSelected(self, text):
         self.my_class = text
 
 
-    @pyqtSlot()
+    @Slot()
     def cancel(self):
         #clean up everything before closing
         self.model = None

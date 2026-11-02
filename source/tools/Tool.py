@@ -1,13 +1,13 @@
-from PyQt5.QtCore import QObject, pyqtSignal
+from PySide6.QtCore import QObject, Signal
 
 from source.Blob import Blob
 
 class Tool(QObject):
     
     # custom signals
-    infoMessage = pyqtSignal(str)
-    log = pyqtSignal(str)
-    blobInfo = pyqtSignal(Blob, str)
+    infoMessage = Signal(str)
+    log = Signal(str)
+    blobInfo = Signal(Blob, str)
 
     def __init__(self, viewerplus):
         super(Tool, self).__init__()

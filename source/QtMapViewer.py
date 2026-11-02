@@ -20,9 +20,9 @@
 """ PyQt map viewer widget.
 """
 
-from PyQt5.QtCore import Qt, QRectF, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QBrush, QPen, QPalette, QColor, qRgb, qRgba, qRed, qGreen, qBlue
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QSizePolicy
+from PySide6.QtCore import Qt, QRectF, Signal, Slot
+from PySide6.QtGui import QImage, QPixmap, QPainter, QBrush, QPen, QPalette, QColor, qRgb, qRgba, qRed, qGreen, qBlue
+from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QSizePolicy
 
 
 class QtMapViewer(QGraphicsView):
@@ -31,11 +31,11 @@ class QtMapViewer(QGraphicsView):
     """
 
     # Mouse button signals emit image scene (x, y) coordinates.
-    leftMouseButtonPressed = pyqtSignal(float, float)
-    mouseMoveLeftPressed = pyqtSignal(float, float)
+    leftMouseButtonPressed = Signal(float, float)
+    mouseMoveLeftPressed = Signal(float, float)
 
     # custom signal
-    viewUpdated = pyqtSignal()
+    viewUpdated = Signal()
 
     def __init__(self, preferred_size):
         QGraphicsView.__init__(self)
@@ -130,7 +130,7 @@ class QtMapViewer(QGraphicsView):
     def setOpacity(self, opacity):
         self.opacity = opacity
 
-    @pyqtSlot(QRectF)
+    @Slot(QRectF)
     def drawOverlayImage(self, rect):
 
         if self.pixmapitem is not None:
@@ -160,7 +160,7 @@ class QtMapViewer(QGraphicsView):
         """ Show current zoom (if showing entire image, apply current aspect ratio mode).
         """
         self.resetTransform()
-        self.setTransformationAnchor(self.AnchorViewCenter)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
         self.scale(self.zoom_factor, self.zoom_factor)
 
         #self.fitInView(self.sceneRect(), self.aspectRatioMode)

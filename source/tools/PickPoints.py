@@ -1,8 +1,8 @@
 import numpy as np
 
-from PyQt5.QtCore import Qt, QPointF, QRectF, QFileInfo, QDir, pyqtSlot, pyqtSignal, QT_VERSION_STR
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QPainterPath, QPen, QImageReader, QFont
-from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsItem, QGraphicsScene, QFileDialog, QGraphicsPixmapItem
+from PySide6.QtCore import Qt, QPointF, QRectF, QFileInfo, QDir, Slot, Signal
+from PySide6.QtGui import QImage, QPixmap, QPainter, QPainterPath, QPen, QImageReader, QFont
+from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsItem, QGraphicsScene, QFileDialog, QGraphicsPixmapItem
 
 class PickPoints(object):
     def __init__(self, scene):

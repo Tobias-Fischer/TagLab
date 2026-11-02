@@ -17,12 +17,12 @@
 # GNU General Public License (http://www.gnu.org/licenses/gpl.txt)
 # for more details.
 
-from PyQt5.QtWidgets import (
+from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QGroupBox,
     QRadioButton, QCheckBox, QSpinBox, QComboBox,
     QLabel, QPushButton, QFrame
 )
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 
 class QtExportRegionsWidget(QDialog):

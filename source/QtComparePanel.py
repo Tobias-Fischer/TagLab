@@ -16,10 +16,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             
 # GNU General Public License (http://www.gnu.org/licenses/gpl.txt)
 # for more details.                                               
-from PyQt5.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRegExp, QModelIndex, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QSizePolicy, QComboBox, QLabel, QTableView, QHeaderView, \
-    QVBoxLayout, QAbstractItemView, QStyledItemDelegate, QAction, QMenu, QToolButton, QGridLayout, QLineEdit
-from PyQt5.QtGui import QColor
+from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRegularExpression, QModelIndex, Slot, Signal
+from PySide6.QtWidgets import QWidget, QSizePolicy, QComboBox, QLabel, QTableView, QHeaderView, \
+    QVBoxLayout, QAbstractItemView, QStyledItemDelegate, QMenu, QToolButton, QGridLayout, QLineEdit
+from PySide6.QtGui import QColor
 from pathlib import Path
 
 from source.Image import Image
@@ -187,8 +188,8 @@ class ComboBoxItemDelegate(QStyledItemDelegate):
 
 class QtComparePanel(QWidget):
 
-    filterChanged = pyqtSignal(str)
-    areaModeChanged = pyqtSignal(str)
+    filterChanged = Signal(str)
+    areaModeChanged = Signal(str)
 
     def __init__(self, parent=None):
         super(QtComparePanel, self).__init__(parent)
@@ -353,7 +354,7 @@ height: 0px;
         menu.addAction(self.fuseAction)
 
         viewer = self.sender()
-        action = menu.exec_(viewer.mapToGlobal(position))
+        action = menu.exec(viewer.mapToGlobal(position))
 
     def setTable(self, project, img1idx, img2idx):
 
@@ -426,7 +427,7 @@ height: 0px;
         self.data_table.setModel(self.model)
         self.data_table.update()
 
-    @pyqtSlot()
+    @Slot()
     def updateData(self):
         """
         Some operations on the table occurs, so the content of the QTable needs to be updated.
@@ -487,7 +488,7 @@ height: 0px;
 
         return self.comboboxAreaMode.currentText().lower()
 
-    @pyqtSlot(QModelIndex)
+    @Slot(QModelIndex)
     def getData(self, index):
 
         pass
@@ -496,7 +497,7 @@ height: 0px;
         #self.data_table.model().index(row, column).data()
 
 
-    @pyqtSlot(str)
+    @Slot(str)
     def changeAreaMode(self, txt):
 
         if txt == "Area":
@@ -509,17 +510,17 @@ height: 0px;
 
         self.areaModeChanged.emit(txt.lower())
 
-    @pyqtSlot(str)
+    @Slot(str)
     def changeFilter(self, txt):
 
         if self.data is None:
             return
 
         if txt == 'All':
-            self.sortfilter.setFilterRegExp(QRegExp())
+            self.sortfilter.setFilterRegularExpression(QRegularExpression())
         else:
             self.sortfilter.setFilterKeyColumn(6)
-            self.sortfilter.setFilterRegExp(txt.lower())
+            self.sortfilter.setFilterRegularExpression(txt.lower())
             self.sortfilter.setFilterRole(Qt.DisplayRole)
 
         self.filterChanged.emit(txt.lower())

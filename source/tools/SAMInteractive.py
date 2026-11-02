@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMessageBox
-from PyQt5.QtGui import QPen, QBrush, QColor, QPainterPath
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtGui import QPen, QBrush, QColor, QPainterPath
 from source.genutils import qimageToNumpyArray, cropQImage
 
 from source.Blob import Blob

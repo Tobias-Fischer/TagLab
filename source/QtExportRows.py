@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, \
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, \
                             QCheckBox, QFileDialog, QComboBox, QFrame
-from PyQt5.QtGui import QColor
-# from PyQt5.QtCore import Qt
+from PySide6.QtGui import QColor
+# from PySide6.QtCore import Qt
 import ezdxf 
 from skimage import measure
 

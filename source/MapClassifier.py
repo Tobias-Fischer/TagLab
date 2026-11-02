@@ -33,8 +33,8 @@ from models.dataloaders import helpers as helpers
 # DEEPLAB V3+
 from models.deeplab import DeepLab
 
-from PyQt5.QtCore import QCoreApplication, Qt, QObject, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QPainter, QImage, QColor, QPixmap, qRgb, qRed, qGreen, qBlue
+from PySide6.QtCore import QCoreApplication, Qt, QObject, Slot, Signal
+from PySide6.QtGui import QPainter, QImage, QColor, QPixmap, qRgb, qRed, qGreen, qBlue
 
 from source import genutils
 
@@ -48,7 +48,7 @@ class MapClassifier(QObject):
     """
 
     # custom signal
-    updateProgress = pyqtSignal(float)
+    updateProgress = Signal(float)
 
     def __init__(self, classifier_info, labels_dictionary, parent=None):
         super(QObject, self).__init__(parent)

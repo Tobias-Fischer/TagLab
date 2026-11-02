@@ -18,17 +18,17 @@
 # for more details.
 
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QEvent, QDate
-from PyQt5.QtWidgets import QGridLayout, QWidget, QScrollArea, QGroupBox, QColorDialog, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, QSize, Slot, Signal, QEvent, QDate
+from PySide6.QtWidgets import QGridLayout, QWidget, QScrollArea, QGroupBox, QColorDialog, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout, QTextEdit, QTableWidget, QTableWidgetItem, QFrame, QHeaderView, QAbstractItemView
-from PyQt5.QtGui import QFont
+from PySide6.QtGui import QFont
 import rasterio as rio
 import os, json, re
 from source.RegionAttributes import RegionAttributes
 from copy import deepcopy
 
 class QtProjectEditor(QWidget):
-    closed = pyqtSignal()
+    closed = Signal()
     def __init__(self, project, parent=None):
         super(QtProjectEditor, self).__init__(parent)
         self.project = project
@@ -123,7 +123,7 @@ class QtProjectEditor(QWidget):
 
         self.fillMaps()
 
-    @pyqtSlot()
+    @Slot()
     def fillMaps(self):
         """Fill the table with map information"""
         
@@ -203,7 +203,7 @@ class QtProjectEditor(QWidget):
         summary_text = f"<b>Project Summary:</b> {len(self.project.images)} map(s) | {total_annotations} annotation(s) | Date range: {date_range}"
         self.summary_label.setText(summary_text)
         
-    @pyqtSlot()
+    @Slot()
     def onMapSelected(self):
         """Display detailed information when a map is selected"""
         selected_rows = self.table.selectionModel().selectedRows()

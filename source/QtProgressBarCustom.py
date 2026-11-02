@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt, QMargins, QRect, QSize, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QPainter, QBrush, QPixmap, QPen, QColor, QIcon, qRgb, qRed, qGreen, qBlue, QFont
-from PyQt5.QtWidgets import QWidget, QGroupBox, QSizePolicy, QSlider, QLabel, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, QMargins, QRect, QSize, Slot, Signal
+from PySide6.QtGui import QPainter, QBrush, QPixmap, QPen, QColor, QIcon, qRgb, qRed, qGreen, qBlue, QFont
+from PySide6.QtWidgets import QWidget, QGroupBox, QSizePolicy, QSlider, QLabel, QHBoxLayout, QVBoxLayout
 
 class QtProgressBarCustom(QWidget):
 
@@ -58,7 +58,7 @@ class QtProgressBarCustom(QWidget):
         self.drawBar(txt)
 
 
-    @pyqtSlot(float)
+    @Slot(float)
     def setProgress(self, progress):
         """
         Set the current progress of the processing. The value goes from 0.0 to 100.0

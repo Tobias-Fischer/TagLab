@@ -19,9 +19,9 @@
 
 import os
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
-from PyQt5.QtWidgets import QWidget, QGroupBox, QGridLayout, QSizePolicy, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, QSize, Slot, Signal
+from PySide6.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
+from PySide6.QtWidgets import QWidget, QGroupBox, QGridLayout, QSizePolicy, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 
 from source.Annotation import Annotation
 

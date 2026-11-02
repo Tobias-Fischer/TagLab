@@ -1,11 +1,11 @@
 import numpy as np
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPen, QFont
-from PyQt5.QtWidgets import QGraphicsItem
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPen, QFont
+from PySide6.QtWidgets import QGraphicsItem
 from snuggs import number
 
 from source.tools.Tool import Tool
-from PyQt5.QtCore import pyqtSlot, pyqtSignal
+from PySide6.QtCore import Slot, Signal
 
 
 class SelectPoints(Tool):
@@ -13,7 +13,7 @@ class SelectPoints(Tool):
     Tool to select N points on the orthoimage.
     """
 
-    lastSelectedPoint = pyqtSignal(float, float)
+    lastSelectedPoint = Signal(float, float)
 
     def __init__(self, viewerplus, pick_points):
         super(SelectPoints, self).__init__(viewerplus)
@@ -68,7 +68,7 @@ class SelectPoints(Tool):
         self.image_width = w
         self.image_height = h
 
-    @pyqtSlot(int, int)
+    @Slot(int, int)
     def setPoints(self, idx, point):
 
         x = point[0]

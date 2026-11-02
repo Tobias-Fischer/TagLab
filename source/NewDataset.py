@@ -22,8 +22,8 @@ import cv2
 import os
 import math
 import numpy as np
-from PyQt5.QtGui import QPainter, QImage, QPen, QBrush, QColor, qRgb, qRed, qGreen, qBlue
-from PyQt5.QtCore import Qt, QPointF
+from PySide6.QtGui import QPainter, QImage, QPen, QBrush, QColor, qRgb, qRed, qGreen, qBlue
+from PySide6.QtCore import Qt, QPointF
 import random as rnd
 from source import Image
 from source import genutils

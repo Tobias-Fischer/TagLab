@@ -19,8 +19,8 @@
 
 import copy
 import numpy as np
-from PyQt5.QtGui import QPainterPath, QPolygonF
-from PyQt5.QtCore import QPointF
+from PySide6.QtGui import QPainterPath, QPolygonF
+from PySide6.QtCore import QPointF
 
 class Layer(object):
     """

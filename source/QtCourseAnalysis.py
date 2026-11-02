@@ -17,9 +17,9 @@
 # GNU General Public License (http://www.gnu.org/licenses/gpl.txt)
 # for more details.
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QPointF, QEvent
-from PyQt5.QtGui import QColor, QPen, QBrush, QPolygonF, QFont, QPalette
-from PyQt5.QtWidgets import QWidget, QTableWidget, QTextEdit, QTableWidgetItem, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QGroupBox, QComboBox, QFileDialog, QMessageBox, QApplication, QToolTip
+from PySide6.QtCore import Qt, Slot, Signal, QPointF, QEvent
+from PySide6.QtGui import QColor, QPen, QBrush, QPolygonF, QFont, QPalette
+from PySide6.QtWidgets import QWidget, QTableWidget, QTextEdit, QTableWidgetItem, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout, QGroupBox, QComboBox, QFileDialog, QMessageBox, QApplication, QToolTip
 import math
 import cv2
 import numpy as np
@@ -289,7 +289,7 @@ class QtCourseAnalysis(QWidget):
         self.logSelectedRegions()
 
     # close the widget
-    closewidget = pyqtSignal()
+    closewidget = Signal()
     
     def closeEvent(self, event):
         # Deactivate any active modes and reset cursor
@@ -312,13 +312,13 @@ class QtCourseAnalysis(QWidget):
         self.closewidget.emit()
         super(QtCourseAnalysis, self).closeEvent(event)
 
-    @pyqtSlot()
+    @Slot()
     def onSelectionChanged(self):
         """Called when the selection changes in the viewer"""
         self.workingBlobs = self.activeviewer.selected_blobs[:]
         self.writeLog("Selection changed. Now {} region(s) selected.".format(len(self.workingBlobs)))
 
-    @pyqtSlot(str)
+    @Slot(str)
     def onColorModeChanged(self, mode):
         """Called when the color mode dropdown changes"""
         self.colorMode = mode
@@ -456,7 +456,7 @@ class QtCourseAnalysis(QWidget):
     # COMMAND FUNCTIONS (STUBS)
     ########################################################################################
 
-    @pyqtSlot()
+    @Slot()
     def recognizeCourses(self):
         """
         Recognize courses using incremental algorithm.
@@ -612,7 +612,7 @@ class QtCourseAnalysis(QWidget):
             else:
                 course['curve_coeffs'] = coeffs
     
-    @pyqtSlot()
+    @Slot()
     def toggleInclination(self):
         """
         Toggle the display of inclination lines.
@@ -635,7 +635,7 @@ class QtCourseAnalysis(QWidget):
             self.btnAnalyzeInclination.setStyleSheet("")
             self.btnAnalyzeInclination.setText("Show Inclination")
     
-    @pyqtSlot()
+    @Slot()
     def toggleSegmentInclination(self):
         """
         Toggle the display of segment-by-segment inclination angles.
@@ -658,7 +658,7 @@ class QtCourseAnalysis(QWidget):
             self.btnSegmentInclination.setStyleSheet("")
             self.btnSegmentInclination.setText("Show Segment Angles")
     
-    @pyqtSlot()
+    @Slot()
     def toggleCurveFit(self):
         """
         Toggle the display of polynomial curve fit for each course.
@@ -681,7 +681,7 @@ class QtCourseAnalysis(QWidget):
             self.btnShowCurveFit.setStyleSheet("")
             self.btnShowCurveFit.setText("Show Curve Fit")
     
-    @pyqtSlot()
+    @Slot()
     def toggleCutMode(self):
         """
         Toggle cut mode on/off.
@@ -711,7 +711,7 @@ class QtCourseAnalysis(QWidget):
             self.writeLog("Cut mode deactivated.")
             self.activeviewer.setCursor(Qt.ArrowCursor)
     
-    @pyqtSlot()
+    @Slot()
     def toggleMergeMode(self):
         """
         Toggle merge mode on/off.
@@ -1814,7 +1814,7 @@ class QtCourseAnalysis(QWidget):
     # SAVE/RESTORE STATE FUNCTIONS
     ########################################################################################
     
-    @pyqtSlot()
+    @Slot()
     def saveState(self):
         """
         Save the current state of courses to a JSON file.
@@ -1878,7 +1878,7 @@ class QtCourseAnalysis(QWidget):
             self.writeLog(f"Error saving state: {str(e)}")
             QMessageBox.critical(self, "Error", f"Failed to save state:\n{str(e)}")
     
-    @pyqtSlot()
+    @Slot()
     def restoreState(self):
         """
         Restore courses state from a JSON file.

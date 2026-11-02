@@ -19,9 +19,9 @@
 
 import os
 
-from PyQt5.Qt import QDesktopServices
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QUrl
-from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtGui import QDesktopServices
+from PySide6.QtCore import Qt, Slot, Signal, QUrl
+from PySide6.QtWidgets import QApplication, QWidget, QFileDialog, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout, QMessageBox, QGroupBox, QGridLayout, QComboBox, QCheckBox, QSizePolicy, QStackedWidget, QPlainTextEdit
 from models.coral_dataset import CoralsDataset
 import models.training as training
@@ -31,7 +31,7 @@ import yaml
 class QtTYNWidget(QWidget):
 
 
-    launchTraining = pyqtSignal()
+    launchTraining = Signal()
 
 
     def __init__(self, labels, taglab_version, parent=None):
@@ -456,7 +456,7 @@ class QtTYNWidget(QWidget):
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint | Qt.WindowTitleHint)
 
 
-    @pyqtSlot(str)
+    @Slot(str)
     def epochsChanged(self, text):
 
         if text == "":
@@ -585,7 +585,7 @@ class QtTYNWidget(QWidget):
 
 
 
-    @pyqtSlot(str)
+    @Slot(str)
     def epochsStagesChanged(self, text):
 
         if text == "":
@@ -605,7 +605,7 @@ class QtTYNWidget(QWidget):
         except:
             pass
 
-    @pyqtSlot(str)
+    @Slot(str)
     def updateTrainingParameters(self, mode):
 
         if mode == "Preset 1":
@@ -731,7 +731,7 @@ class QtTYNWidget(QWidget):
         self.freq_classes = None
         self.target_classes = None
 
-    @pyqtSlot()
+    @Slot()
     def help(self):
 
         url = QUrl("http://taglab.isti.cnr.it/docs")
@@ -968,7 +968,7 @@ class QtTYNWidget(QWidget):
         except Exception:
             return False
 
-    @pyqtSlot()
+    @Slot()
     def updateCumulativeBackground(self):
 
         if self.groupbox_classes_DL is None:
@@ -1137,7 +1137,7 @@ class QtTYNWidget(QWidget):
 
 
 
-    @pyqtSlot()
+    @Slot()
     def checkBeforeTraining(self):
 
         dataset_Folder = self.editInputDatasetFolder.text()

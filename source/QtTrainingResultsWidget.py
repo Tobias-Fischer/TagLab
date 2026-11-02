@@ -3,9 +3,9 @@ import random, os
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import ConfusionMatrixDisplay
-from PyQt5.QtCore import Qt, QSize, QFile, QIODevice, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
-from PyQt5.QtWidgets import QSlider, QWidget, QDialog, QGroupBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, QSize, QFile, QIODevice, Slot, Signal
+from PySide6.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
+from PySide6.QtWidgets import QSlider, QWidget, QDialog, QGroupBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 
 from source import genutils
 
@@ -228,7 +228,7 @@ class QtTrainingResultsWidget(QWidget):
         self.pxmapCM_HiRes = None
         self.last_tile_selected = None
 
-    @pyqtSlot()
+    @Slot()
     def displayCM(self):
 
         np.set_printoptions(precision=2)
@@ -273,7 +273,7 @@ class QtTrainingResultsWidget(QWidget):
         widget.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint | Qt.WindowTitleHint)
         widget.show()
 
-    @pyqtSlot()
+    @Slot()
     def SaveCM(self):
 
         # Generate the confusion matrix pixmap if it hasn't been created yet
@@ -312,7 +312,7 @@ class QtTrainingResultsWidget(QWidget):
         if filename:
             self.pxmapCM_HiRes.save(filename)
 
-    @pyqtSlot()
+    @Slot()
     def SaveTG(self):
 
         if self.pxmapTG_HiRes is None:
@@ -325,7 +325,7 @@ class QtTrainingResultsWidget(QWidget):
         if filename:
             self.pxmapTG_HiRes.save(filename)
 
-    @pyqtSlot()
+    @Slot()
     def SelectTile(self):
 
         filters = "PNG (*.png)"

@@ -19,9 +19,9 @@
 
 import os
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QPainter, QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
-from PyQt5.QtWidgets import QSlider,QGroupBox, QCheckBox,  QWidget, QDialog, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, QSize, Slot, Signal
+from PySide6.QtGui import QPainter, QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
+from PySide6.QtWidgets import QSlider,QGroupBox, QCheckBox,  QWidget, QDialog, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from source.Annotation import Annotation
 import numpy as np
 
@@ -29,7 +29,7 @@ from source import genutils
 
 class QtClassifierWidget(QWidget):
 
-    closed = pyqtSignal()
+    closed = Signal()
 
     def __init__(self, classifiers, parent=None):
         super(QtClassifierWidget, self).__init__(parent)
@@ -257,7 +257,7 @@ class QtClassifierWidget(QWidget):
                 self.QlabelRGB.setPixmap(self.QPixmapRGB.scaled(QSize(size, size), Qt.KeepAspectRatio))
 
 
-    @pyqtSlot(int, int, int, int)
+    @Slot(int, int, int, int)
     def updatePreviewArea(self, x, y, width, height):
 
         width = min(2048, width)
@@ -273,12 +273,12 @@ class QtClassifierWidget(QWidget):
 
         return x, y, w, h
 
-    @pyqtSlot(int)
+    @Slot(int)
     def useAutocolor(self):
         self.colorPreview()
 
 
-    @pyqtSlot(int)
+    @Slot(int)
     def useAutoLevel(self):
         self.colorPreview()
 
@@ -309,7 +309,7 @@ class QtClassifierWidget(QWidget):
             size = self.LABEL_SIZE
             self.QlabelPred.setPixmap(self.QPixmapPred.scaled(QSize(size, size), Qt.KeepAspectRatio))
 
-    @pyqtSlot(int)
+    @Slot(int)
     def classifierChanged(self, index):
 
         classifier = self.classifiers[index]
@@ -339,7 +339,7 @@ class QtClassifierWidget(QWidget):
         txt = "R = {0:.2f}, G = {1:.2f}, B = {2:.2f} ".format(avgcolor_list[0]*255.0, avgcolor_list[1]*255.0, avgcolor_list[2]*255.0)
         return txt
 
-    @pyqtSlot()
+    @Slot()
     def sliderScoresChanged(self):
 
         # update tolerance value
@@ -347,7 +347,7 @@ class QtClassifierWidget(QWidget):
         txt = "{:.2f}".format(newvalue)
         self.QlabelThreshValue.setText(txt)
 
-    @pyqtSlot()
+    @Slot()
     def sliderTransparencyChanged(self):
 
         # update transparency value

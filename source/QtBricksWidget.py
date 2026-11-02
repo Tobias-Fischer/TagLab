@@ -17,9 +17,9 @@
 #GNU General Public License (http://www.gnu.org/licenses/gpl.txt)          
 # for more details.                                               
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QPainter, QPen, QBrush, QIcon, QImage, QIntValidator
-from PyQt5.QtWidgets import QApplication, QWidget, QProgressBar, QMessageBox, QSizePolicy, QSlider, QLabel, \
+from PySide6.QtCore import Qt, QSize, Slot, Signal
+from PySide6.QtGui import QPainter, QPen, QBrush, QIcon, QImage, QIntValidator
+from PySide6.QtWidgets import QApplication, QWidget, QProgressBar, QMessageBox, QSizePolicy, QSlider, QLabel, \
     QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
 from source.QtImageViewer import QtImageViewer
 from source.Annotation import Annotation
@@ -41,7 +41,7 @@ import random
 
 class QtBricksWidget(QWidget):
 
-    closeBricksWidget = pyqtSignal()
+    closeBricksWidget = Signal()
 
     def __init__(self, orthoimage, pixel_size, macroarea_blob, parent=None):
         super(QtBricksWidget, self).__init__(parent)
@@ -257,19 +257,19 @@ class QtBricksWidget(QWidget):
         if event.key() == Qt.Key_Escape:
             self.closeBricksWidget.emit()
 
-    @pyqtSlot()
+    @Slot()
     def setRectangularShapedBricks(self):
         self.btnRectangularShape.setChecked(True)
         self.btnIrregularShape.setChecked(False)
         self.rectangular_shape = True
 
-    @pyqtSlot()
+    @Slot()
     def setIrregularShapedBricks(self):
         self.btnRectangularShape.setChecked(False)
         self.btnIrregularShape.setChecked(True)
         self.rectangular_shape = False
 
-    # @pyqtSlot()
+    # @Slot()
     # def sliderBlurStrengthChanged(self):
     #
     #     # update value
@@ -279,7 +279,7 @@ class QtBricksWidget(QWidget):
     #     self.lblBlurStrength.setText(txt)
     #     self.blur_strength = newvalue
 
-    @pyqtSlot()
+    @Slot()
     def sliderEdgeThresholdChanged(self):
 
         # update value
@@ -559,7 +559,7 @@ class QtBricksWidget(QWidget):
                     if blobO != blob_to_keep:
                         self.seg_bricks.remove(blobO)
 
-    @pyqtSlot()
+    @Slot()
     def preview(self):
 
         if self.setupBricksSize() is not True:

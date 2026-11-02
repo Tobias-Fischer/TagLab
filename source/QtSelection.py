@@ -1,9 +1,9 @@
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QCheckBox, QLineEdit, QFrame, QComboBox, QMessageBox, QRadioButton
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout, QCheckBox, QLineEdit, QFrame, QComboBox, QMessageBox, QRadioButton
 
 class QtSelectByPropertiesWidget(QWidget):
 
-    closewidget = pyqtSignal()
+    closewidget = Signal()
 
     def __init__(self, wiew, parent=None):
         super(QtSelectByPropertiesWidget, self).__init__(parent)

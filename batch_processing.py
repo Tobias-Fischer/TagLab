@@ -3,7 +3,7 @@ import sys
 import glob
 import json
 import time
-from PyQt5.QtCore import QDir, QSize
+from PySide6.QtCore import QDir, QSize
 from source.Project import Project, loadProject
 import torch
 import argparse

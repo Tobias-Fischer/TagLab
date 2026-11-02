@@ -23,8 +23,8 @@ import numpy as np
 
 from skimage import measure
 from scipy import ndimage as ndi
-from PyQt5.QtGui import QPainterPath, QPolygonF
-from PyQt5.QtCore import QPointF
+from PySide6.QtGui import QPainterPath, QPolygonF
+from PySide6.QtCore import QPointF
 
 from skimage.morphology import square, binary_dilation, binary_erosion
 from skimage.measure import points_in_poly

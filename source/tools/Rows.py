@@ -4,11 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import binary_dilation
 
-from PyQt5.QtCore import Qt, pyqtSlot, QRect, QRectF, pyqtSignal, QT_VERSION_STR
-from PyQt5.QtGui import  QPainterPath, QPen, QBrush, QColor
+from PySide6.QtCore import Qt, Slot, QRect, QRectF, Signal
+from PySide6.QtGui import  QPainterPath, QPen, QBrush, QColor
 
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt
 
 from source.QtRowsWidget import RowsWidget
 from scipy.ndimage import binary_erosion
@@ -211,7 +211,7 @@ class Rows(Tool):
             struct_widget.show()
             self.viewerplus.struct_widget = struct_widget
 
-    @pyqtSlot()
+    @Slot()
     def rowsClose(self):
         self.viewerplus.resetTools()
         self.viewerplus.resetSelection()

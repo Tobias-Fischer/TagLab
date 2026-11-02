@@ -22,9 +22,9 @@
 """
 
 import os.path
-from PyQt5.QtCore import Qt, QPoint, QPointF, QRectF, QLineF, QFileInfo, QDir, pyqtSlot, pyqtSignal, QT_VERSION_STR
-from PyQt5.QtGui import QPen, QColor, QFont, QBrush
-from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QFileDialog, QGraphicsItem, QGraphicsSimpleTextItem, QPlainTextEdit,QSizePolicy
+from PySide6.QtCore import Qt, QPoint, QPointF, QRectF, QLineF, QFileInfo, QDir, Slot, Signal
+from PySide6.QtGui import QPen, QColor, QFont, QBrush
+from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QFileDialog, QGraphicsItem, QGraphicsSimpleTextItem, QPlainTextEdit,QSizePolicy
 
 from source.Undo import Undo
 from source.Project import Project
@@ -75,7 +75,7 @@ class TextItem(QGraphicsSimpleTextItem):
 
 class NoteWidget(QPlainTextEdit):
 
-    editFinishing = pyqtSignal()
+    editFinishing = Signal()
 
     def __init__(self, parent):
         super(QPlainTextEdit, self).__init__(parent)
@@ -106,26 +106,26 @@ class QtImageViewerPlus(QtImageViewer):
     """
 
     # Mouse button signals emit image scene (x, y) coordinates.
-    leftMouseButtonPressed = pyqtSignal(float, float)
-    rightMouseButtonPressed = pyqtSignal(float, float)
-    leftMouseButtonReleased = pyqtSignal(float, float)
-    rightMouseButtonReleased = pyqtSignal(float, float)
-    #leftMouseButtonDoubleClicked = pyqtSignal(float, float)
-    rightMouseButtonDoubleClicked = pyqtSignal(float, float)
-    mouseMoveLeftPressed = pyqtSignal(float, float)
-    mouseMoved = pyqtSignal(float, float)
-    selectionChanged = pyqtSignal()
-    selectionReset = pyqtSignal()
+    leftMouseButtonPressed = Signal(float, float)
+    rightMouseButtonPressed = Signal(float, float)
+    leftMouseButtonReleased = Signal(float, float)
+    rightMouseButtonReleased = Signal(float, float)
+    #leftMouseButtonDoubleClicked = Signal(float, float)
+    rightMouseButtonDoubleClicked = Signal(float, float)
+    mouseMoveLeftPressed = Signal(float, float)
+    mouseMoved = Signal(float, float)
+    selectionChanged = Signal()
+    selectionReset = Signal()
 
     # custom signal
-    updateInfoPanel = pyqtSignal(object)
+    updateInfoPanel = Signal(object)
 
-    activated = pyqtSignal()
-    newSelection = pyqtSignal()
-    newSelectionPoint = pyqtSignal()
-    activeImageChanged = pyqtSignal(Image)
+    activated = Signal()
+    newSelection = Signal()
+    newSelectionPoint = Signal()
+    activeImageChanged = Signal(Image)
     
-    messageSignal = pyqtSignal(str)
+    messageSignal = Signal(str)
 
     def __init__(self, taglab_dir):
         QtImageViewer.__init__(self)
@@ -481,7 +481,7 @@ class QtImageViewerPlus(QtImageViewer):
 
         self.show_grid = False
 
-    @pyqtSlot(int)
+    @Slot(int)
     def toggleGrid(self, check):
 
         if check == 0:
@@ -489,7 +489,7 @@ class QtImageViewerPlus(QtImageViewer):
         else:
             self.showGrid()
 
-    @pyqtSlot(int)
+    @Slot(int)
     def toggleImage(self, checked):
         """
         Toggle the visibility of the base image.
@@ -514,7 +514,7 @@ class QtImageViewerPlus(QtImageViewer):
 
         self.fill_enabled = False
 
-    @pyqtSlot(int)
+    @Slot(int)
     def toggleFill(self, checked):
 
         if checked == 0:
@@ -539,7 +539,7 @@ class QtImageViewerPlus(QtImageViewer):
 
         self.border_enabled = False
 
-    @pyqtSlot(int)
+    @Slot(int)
     def toggleBorders(self, checked):
 
         if checked == 0:
@@ -563,7 +563,7 @@ class QtImageViewerPlus(QtImageViewer):
 
         self.ids_enabled = False
 
-    @pyqtSlot(int)
+    @Slot(int)
     def toggleIds(self, checked):
 
         if checked == 0:
@@ -900,7 +900,7 @@ class QtImageViewerPlus(QtImageViewer):
         self.scene.invalidate(self.scene.sceneRect())
         self.setDragMode(QGraphicsView.NoDrag)
 
-    @pyqtSlot(float, float)
+    @Slot(float, float)
     def selectOp(self, x, y):
         """
         Selection operation. Note that both the areas and the points are selected.
@@ -1270,7 +1270,7 @@ class QtImageViewerPlus(QtImageViewer):
             self.addToSelectedPointList(annpoint)
 
 
-    @pyqtSlot(str)
+    @Slot(str)
     def setActiveLabel(self, label):
 
         if self.tools.tool == "ASSIGN":
@@ -1283,7 +1283,7 @@ class QtImageViewerPlus(QtImageViewer):
 
         self.active_label = label
 
-    @pyqtSlot(str, int)
+    @Slot(str, int)
     def setBorderPen(self, color, thickness):
 
         self.border_pen = QPen(Qt.black, thickness)
@@ -1298,7 +1298,7 @@ class QtImageViewerPlus(QtImageViewer):
             for blob in self.annotations.seg_blobs:
                 blob.qpath_gitem.setPen(self.border_pen)
 
-    @pyqtSlot(str, int)
+    @Slot(str, int)
     def setSelectionPen(self, color, thickness):
 
         self.border_selected_pen = QPen(Qt.white, thickness)
@@ -1313,7 +1313,7 @@ class QtImageViewerPlus(QtImageViewer):
             for blob in self.selected_blobs:
                 blob.qpath_gitem.setPen(self.border_selected_pen)
 
-    @pyqtSlot(str, int)
+    @Slot(str, int)
     def setWorkingAreaPen(self, color, thickness):
 
         self.working_area_pen = QPen(Qt.white, thickness, Qt.DashLine)
@@ -1330,7 +1330,7 @@ class QtImageViewerPlus(QtImageViewer):
             if self.working_area_rect is not None:
                 self.working_area_rect.setPen(self.working_area_pen)
 
-    @pyqtSlot(str)
+    @Slot(str)
     def setLabelPen(self, color):
 
         color_components = color.split("-")
@@ -1710,7 +1710,7 @@ class QtImageViewerPlus(QtImageViewer):
 
         self.saveUndo()
 
-    @pyqtSlot(str)
+    @Slot(str)
     def assignClass(self, class_name):
         """
         Assign the given class to the selected blobs.
@@ -1861,12 +1861,12 @@ class QtImageViewerPlus(QtImageViewer):
         event.accept()
 
 
-    @pyqtSlot(str)
+    @Slot(str)
     def logMessage(self, message):
 
         self.logfile.info(message)
 
-    @pyqtSlot(Blob, str)
+    @Slot(Blob, str)
     def logBlobInfo(self, blob, msg):
 
         message1 = msg + " Blob_id={:d} Blob_name={:s} class={:s}".format(blob.id, blob.blob_name, blob.class_name)

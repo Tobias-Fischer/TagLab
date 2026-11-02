@@ -226,7 +226,7 @@ if osused != 'Windows':
 # requirements needed by TagLab
 install_requires = [
     'wheel',
-    'pyqt5',
+    'pyside6',
     'scikit-image',
     'scikit-learn',
     'pandas',

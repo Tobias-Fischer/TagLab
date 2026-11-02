@@ -1,6 +1,6 @@
 from source.tools.Tool import Tool
 from source.Blob import Blob
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 #this class is not actually doing nothing, matching functions live in TagLab.py
 class  Match(Tool):

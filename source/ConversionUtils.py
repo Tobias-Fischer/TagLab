@@ -18,7 +18,7 @@
 # for more details.                                               
 import numpy as np
 
-from PyQt5.QtGui import QImage
+from PySide6.QtGui import QImage
 
 
 def qimage2ndarray(image):

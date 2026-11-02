@@ -11,7 +11,7 @@ from sklearn.metrics import jaccard_score
 from sklearn.metrics import confusion_matrix
 from models.coral_dataset import CoralsDataset
 import models.losses as losses
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication
 from qhoptim.pyt import QHAdam
 
 # SEED

@@ -18,8 +18,8 @@
 # for more details.
 
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal, QEvent
-from PyQt5.QtWidgets import QWidget, QScrollArea,QGroupBox, QColorDialog, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, QSize, Slot, Signal, QEvent
+from PySide6.QtWidgets import QWidget, QScrollArea,QGroupBox, QColorDialog, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout, QTextEdit, QFrame
 from source.Label import Label
 import json
@@ -34,11 +34,11 @@ class DictionaryEncoder(json.JSONEncoder):
 
 class QtDictionaryWidget(QWidget):
 
-    closewidget = pyqtSignal()
+    closewidget = Signal()
 
-    addlabel = pyqtSignal()
-    deletelabel= pyqtSignal(str)
-    updatelabel = pyqtSignal(str,list,str,list)
+    addlabel = Signal()
+    deletelabel= Signal(str)
+    updatelabel = Signal(str,list,str,list)
 
     def __init__(self, dir, project, parent=None):
         super(QtDictionaryWidget, self).__init__(parent)
@@ -249,7 +249,7 @@ class QtDictionaryWidget(QWidget):
         self.closewidget.emit()
         super(QtDictionaryWidget, self).closeEvent(event)
 
-    @pyqtSlot()
+    @Slot()
     def newDictionary(self):
 
         self.edit_description.setText("")
@@ -280,7 +280,7 @@ class QtDictionaryWidget(QWidget):
         if oldname != "":
             self.deletelabel.emit(oldname)
 
-    @pyqtSlot()
+    @Slot()
     def chooseDictionary(self):
 
         filters = "DICTIONARY (*.json *.csv)"
@@ -393,7 +393,7 @@ class QtDictionaryWidget(QWidget):
             self.displayLabels()
 
 
-    @pyqtSlot()
+    @Slot()
     def saveDictionary(self):
 
         name = self.edit_dname.text()
@@ -419,7 +419,7 @@ class QtDictionaryWidget(QWidget):
             box.exec()
             pass
 
-    @pyqtSlot(int,int,int,str)
+    @Slot(int,int,int,str)
     def createLabel(self, r, g, b, name):
 
         COLOR_SIZE= 20
@@ -464,7 +464,7 @@ class QtDictionaryWidget(QWidget):
         self.btn_selection_color.setStyleSheet(text)
 
 
-    @pyqtSlot()
+    @Slot()
     def chooseLabelColor(self):
         self.editR.blockSignals(True)
         self.editG.blockSignals(True)
@@ -526,7 +526,7 @@ class QtDictionaryWidget(QWidget):
         self.scroll.setWidget(tempWidget)
 
 
-    @pyqtSlot()
+    @Slot()
     def updatelabelColor(self):
 
         r, g, b = self.getRGB()
@@ -536,7 +536,7 @@ class QtDictionaryWidget(QWidget):
             self.btn_selection_color.setStyleSheet(text)
 
 
-    @pyqtSlot()
+    @Slot()
     def setlabelColor(self, color):
         color_components = color.split("-")
         if len(color_components) > 2:
@@ -549,7 +549,7 @@ class QtDictionaryWidget(QWidget):
             text = "QPushButton:flat {background-color: rgb(" + r + "," + g + "," + b + "); border: none ;}"
             self.btn_selection_color.setStyleSheet(text)
 
-    @pyqtSlot()
+    @Slot()
     def editLabel(self):
 
         if self.selection_index >= 0:
@@ -711,7 +711,7 @@ class QtDictionaryWidget(QWidget):
 
         return count
 
-    @pyqtSlot()
+    @Slot()
     def addLabel(self):
 
         red, green, blue = self.getRGB()

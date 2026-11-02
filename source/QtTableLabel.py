@@ -16,12 +16,13 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License (http://www.gnu.org/licenses/gpl.txt)
 # for more details.
-from PyQt5.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRegExp, QModelIndex,  QSize, \
-    pyqtSlot, pyqtSignal, QEvent
-from PyQt5.QtWidgets import QWidget, QSizePolicy, QComboBox, QLabel, QTableView, QHeaderView, \
-    QHBoxLayout, QVBoxLayout, QAbstractItemView, QStyledItemDelegate, QAction, QMenu, QToolButton, QGridLayout, \
+from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRegularExpression, QModelIndex,  QSize, \
+    Slot, Signal, QEvent
+from PySide6.QtWidgets import QWidget, QSizePolicy, QComboBox, QLabel, QTableView, QHeaderView, \
+    QHBoxLayout, QVBoxLayout, QAbstractItemView, QStyledItemDelegate, QMenu, QToolButton, QGridLayout, \
     QLineEdit, QApplication, QLineEdit, QWidget, QSizePolicy, QPushButton
-from PyQt5.QtGui import QIcon, QColor, QPixmap, QPainter
+from PySide6.QtGui import QIcon, QColor, QPixmap, QPainter
 from pathlib import Path
 import os
 from source.Point import Point
@@ -162,11 +163,11 @@ class QtLabelSortFilter(QSortFilterProxyModel):
 class QtTableLabel(QWidget):
 
     # custom signals
-    visibilityChanged = pyqtSignal()
-    activeLabelChanged = pyqtSignal(str)
-    doubleClickLabel = pyqtSignal(str)
+    visibilityChanged = Signal()
+    activeLabelChanged = Signal(str)
+    doubleClickLabel = Signal(str)
 
-    selectionChanged = pyqtSignal()
+    selectionChanged = Signal()
 
     def __init__(self, parent=None):
         super(QtTableLabel, self).__init__(parent)
@@ -214,7 +215,7 @@ height: 0px;
         self.data_table.clicked.connect(self.clickedCell)
         self.data_table.doubleClicked.connect(self.doubleClickedCell)
 
-    @pyqtSlot(QModelIndex)
+    @Slot(QModelIndex)
     def clickedCell(self, index):
 
         if index.column() == 0:
@@ -227,7 +228,7 @@ height: 0px;
            self.active_label_name = self.data['Class'][oldindex.row()]
            self.activeLabelChanged.emit(self.active_label_name)
 
-    @pyqtSlot(QModelIndex)
+    @Slot(QModelIndex)
     def doubleClickedCell(self, index):
 
         if index.column() == 1 or index.column() == 2:
@@ -235,7 +236,7 @@ height: 0px;
            self.active_label_name = self.data['Class'][oldindex.row()]
            self.doubleClickLabel.emit(self.active_label_name)
     
-    @pyqtSlot(int)
+    @Slot(int)
     def headerClicked(self, logicalIndex):
         """
         Handle header clicks. Clicking column 1 (Color) restores original order.
@@ -330,7 +331,7 @@ height: 0px;
             if row['Class'] == labelname:
                 self.data.loc[i, 'Color'] = str(newcolor)
 
-    @pyqtSlot(Image, object, object)
+    @Slot(Image, object, object)
     def updateBlob(self, img, oldblob, newblob):
 
         if img == self.active_image:  # if the signal arrives from another image that is not connected to this panel it is ignored
@@ -338,7 +339,7 @@ height: 0px;
             self.removeBlob(img, oldblob)
             self.addBlob(img, newblob)
 
-    @pyqtSlot(Image, str, object)
+    @Slot(Image, str, object)
     def updateAnnClass(self, img, old_class_name, newblob_or_newpoint):
 
         if img == self.active_image: # if the signal arrives from another image that is not connected to this panel it is ignored
@@ -376,7 +377,7 @@ height: 0px;
 
                 self.data_table.update()
 
-    @pyqtSlot(Image, object)
+    @Slot(Image, object)
     def addBlob(self, img, blob_or_point):
 
         if img == self.active_image:  # if the signal arrives from another image that is not connected to this panel it is ignored
@@ -400,7 +401,7 @@ height: 0px;
 
             self.data_table.update()
 
-    @pyqtSlot(Image, object)
+    @Slot(Image, object)
     def removeBlob(self, img, blob_or_point):
 
         if img == self.active_image:
@@ -481,7 +482,7 @@ height: 0px;
             label.visible = False
 
 
-    @pyqtSlot()
+    @Slot()
     def toggleVisibility(self, index):
 
         key = self.data['Class'][index]

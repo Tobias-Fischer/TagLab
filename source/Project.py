@@ -5,9 +5,9 @@ import os
 
 import numpy as np
 import pandas as pd
-from PyQt5.QtCore import QObject, QDir, pyqtSignal
-from PyQt5.QtGui import QBrush, QColor
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PySide6.QtCore import QObject, QDir, Signal
+from PySide6.QtGui import QBrush, QColor
+from PySide6.QtWidgets import QFileDialog, QMessageBox
 
 from source import genutils
 from source.Annotation import Annotation
@@ -182,15 +182,15 @@ class ProjectEncoder(json.JSONEncoder):
 class Project(QObject):
 
     # custom signals
-    blobAdded = pyqtSignal(Image, Blob)
-    pointAdded = pyqtSignal(Image, Point)
-    blobRemoved = pyqtSignal(Image, Blob)
-    pointRemoved = pyqtSignal(Image, Point)
-    blobUpdated = pyqtSignal(Image, Blob, Blob)
-    blobClassChanged = pyqtSignal(Image, str, Blob)
-    pointClassChanged = pyqtSignal(Image, str, Point)
-    blobClassChangedByGenet = pyqtSignal(Image, str, Blob)
-    correspTableChanged = pyqtSignal()
+    blobAdded = Signal(Image, Blob)
+    pointAdded = Signal(Image, Point)
+    blobRemoved = Signal(Image, Blob)
+    pointRemoved = Signal(Image, Point)
+    blobUpdated = Signal(Image, Blob, Blob)
+    blobClassChanged = Signal(Image, str, Blob)
+    pointClassChanged = Signal(Image, str, Point)
+    blobClassChangedByGenet = Signal(Image, str, Blob)
+    correspTableChanged = Signal()
 
     def __init__(self, filename=None, labels={}, images=[], correspondences=None,
                  spatial_reference_system=None, metadata={}, image_metadata_template={}, genet={},
@@ -311,7 +311,8 @@ class Project(QObject):
                         "Inconsistent correspondences has been found !!\nPlease, Notify this problem to the TagLab developers.")
                     msgBox.exec()
 
-        data = self.__dict__
+        from PySide6.QtCore import SignalInstance
+        data = {k: v for k, v in self.__dict__.items() if not isinstance(v, SignalInstance)}
         str = json.dumps(data, cls=ProjectEncoder, indent=1)
 
         if filename is None:

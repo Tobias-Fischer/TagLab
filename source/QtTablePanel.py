@@ -16,10 +16,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             
 # GNU General Public License (http://www.gnu.org/licenses/gpl.txt)
 # for more details.                                               
-from PyQt5.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRegExp, QModelIndex, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QSizePolicy, QCheckBox, QComboBox, QLabel, QTableView, QHeaderView, \
-    QHBoxLayout, QVBoxLayout, QAbstractItemView, QStyledItemDelegate, QAction, QMenu, QToolButton, QGridLayout, QLineEdit
-from PyQt5.QtGui import QColor
+from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRegularExpression, QModelIndex, Slot, Signal
+from PySide6.QtWidgets import QWidget, QSizePolicy, QCheckBox, QComboBox, QLabel, QTableView, QHeaderView, \
+    QHBoxLayout, QVBoxLayout, QAbstractItemView, QStyledItemDelegate, QMenu, QToolButton, QGridLayout, QLineEdit
+from PySide6.QtGui import QColor
 import pandas as pd
 from source.Blob import Blob
 from source.Point import Point
@@ -95,9 +96,9 @@ class TableModel(QAbstractTableModel):
                 return str(self._data.index[section])
 
 class QtTablePanel(QWidget):
-    selectionChanged = pyqtSignal()
-    filterChanged = pyqtSignal(str)
-    stateChanged = pyqtSignal(int)
+    selectionChanged = Signal()
+    filterChanged = Signal(str)
+    stateChanged = Signal(int)
 
     def __init__(self, parent=None):
         super(QtTablePanel, self).__init__(parent)
@@ -178,14 +179,14 @@ class QtTablePanel(QWidget):
             points = True
 
         if regions == True and points == True:
-            self.sortfilter.setFilterRegExp(QRegExp())
+            self.sortfilter.setFilterRegularExpression(QRegularExpression())
         else:
             self.sortfilter.setFilterKeyColumn(1)
 
             if regions == True:
-                self.sortfilter.setFilterRegExp('R')
+                self.sortfilter.setFilterRegularExpression('R')
             else:
-                self.sortfilter.setFilterRegExp('P')
+                self.sortfilter.setFilterRegularExpression('P')
 
             self.sortfilter.setFilterRole(Qt.DisplayRole)
 
@@ -229,7 +230,7 @@ class QtTablePanel(QWidget):
         else:
             self.updateTable(self.data)
 
-    @pyqtSlot(Image, object)
+    @Slot(Image, object)
     def addBlob(self, img, blob_or_point):
 
         if img == self.active_image: # if the signal arrives from another image that is not connected to this panel it is ignored
@@ -251,7 +252,7 @@ class QtTablePanel(QWidget):
 
             self.updateTable(self.data)
 
-    @pyqtSlot(Image, object)
+    @Slot(Image, object)
     def removeBlob(self, img, blob):
 
         if img == self.active_image: # if the signal arrives from another image that is not connected to this panel it is ignored
@@ -264,7 +265,7 @@ class QtTablePanel(QWidget):
 
             self.updateTable(self.data)
 
-    @pyqtSlot(Image, Blob, Blob)
+    @Slot(Image, Blob, Blob)
     def updateBlob(self, img, oldblob, newblob):
 
         if img == self.active_image: # if the signal arrives from another image that is not connected to this panel it is ignored
@@ -277,7 +278,7 @@ class QtTablePanel(QWidget):
 
             self.data_table.update()
 
-    @pyqtSlot(Image, str, object)
+    @Slot(Image, str, object)
     def updateBlobClass(self, img, old_class_name, newblob):
 
         if img == self.active_image:  # if the signal arrives from another image that is not connected to this panel it is ignored
@@ -288,7 +289,7 @@ class QtTablePanel(QWidget):
 
             self.data_table.update()
 
-    @pyqtSlot(Image, str, object)
+    @Slot(Image, str, object)
     def updatePointClass(self, img, old_class_name, newpoint):
 
         if img == self.active_image:  # if the signal arrives from another image that is not connected to this panel it is ignored
@@ -327,7 +328,7 @@ class QtTablePanel(QWidget):
         self.data_table.horizontalHeader().showSection(0)
         self.data_table.update()
 
-    @pyqtSlot(str)
+    @Slot(str)
     def selectById(self, text):
 
         try:

@@ -18,13 +18,13 @@
 # for more details.
 
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import  QWidget,  QLabel,  QPushButton, QVBoxLayout, QListWidget, QMessageBox
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtWidgets import  QWidget,  QLabel,  QPushButton, QVBoxLayout, QListWidget, QMessageBox
 
 class QtProjectWidget(QWidget):
 
-    projectChanged = pyqtSignal()    #signal emitted when a map is added/removed
-    mapChanged = pyqtSignal(map)     #signal emitted when a map is edited
+    projectChanged = Signal()    #signal emitted when a map is added/removed
+    mapChanged = Signal(map)     #signal emitted when a map is edited
 
     def __init__(self, project, parent=None):
         super(QtProjectWidget, self).__init__(parent)
@@ -66,17 +66,17 @@ class QtProjectWidget(QWidget):
         for img in self.project.images:
             self.mapList.addItem(img.name + " " + img.acquisition_date + " "  + str(img.map_px_to_mm_factor))
 
-    @pyqtSlot()
+    @Slot()
     def newImage(self):
         print("new")
         pass
 
-    @pyqtSlot()
+    @Slot()
     def editImage(self):
         print("edit")
         pass
 
-    @pyqtSlot()
+    @Slot()
     def deleteImage(self):
         imgs = self.mapList.selectionModel().selectedIndexes()
         if len(imgs) == 0:

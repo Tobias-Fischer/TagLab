@@ -1,7 +1,7 @@
 import numpy as np
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QPen, QFont
-from PyQt5.QtWidgets import QGraphicsItem
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QPen, QFont
+from PySide6.QtWidgets import QGraphicsItem
 from source.tools.Tool import Tool
 from source.Point import Point
 

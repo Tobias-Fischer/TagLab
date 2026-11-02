@@ -19,15 +19,15 @@
 
 import os
 
-from PyQt5.QtCore import Qt, QSettings, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QWidget, QColorDialog, QListWidget, QStackedWidget, QComboBox, QSizePolicy, QLineEdit, \
+from PySide6.QtCore import Qt, QSettings, Slot, Signal
+from PySide6.QtGui import QIntValidator
+from PySide6.QtWidgets import QWidget, QColorDialog, QListWidget, QStackedWidget, QComboBox, QSizePolicy, QLineEdit, \
     QLabel, QSpinBox, QCheckBox, QPushButton, QHBoxLayout, QVBoxLayout, QFileDialog
 
 class generalSettingsWidget(QWidget):
 
-    researchFieldChanged = pyqtSignal(str)
-    autosaveInfoChanged = pyqtSignal(int)
+    researchFieldChanged = Signal(str)
+    autosaveInfoChanged = Signal(int)
 
     def __init__(self, settings, taglab_dir, parent=None):
         super(generalSettingsWidget, self).__init__(parent)
@@ -87,7 +87,7 @@ class generalSettingsWidget(QWidget):
         self.checkbox_autosave.stateChanged.connect(self.autosaveChanged)
         self.spinbox_autosave_interval.valueChanged.connect(self.autosaveIntervalChanged)
 
-    @pyqtSlot()
+    @Slot()
     def chooseDict(self):
 
         filters = "JSON (*.json)"
@@ -98,7 +98,7 @@ class generalSettingsWidget(QWidget):
             self.settings.setValue("default-dictionary", default_dict)
 
 
-    @pyqtSlot(int)
+    @Slot(int)
     def autosaveChanged(self, status):
 
         if self.checkbox_autosave.isChecked() is False:
@@ -118,7 +118,7 @@ class generalSettingsWidget(QWidget):
 
             self.autosaveInfoChanged.emit(self.spinbox_autosave_interval.value())
 
-    @pyqtSlot(int)
+    @Slot(int)
     def autosaveIntervalChanged(self, value):
 
         self.settings.setValue("autosave-interval", self.spinbox_autosave_interval.value())
@@ -165,10 +165,10 @@ class generalSettingsWidget(QWidget):
 
 class drawingSettingsWidget(QWidget):
 
-    borderPenChanged = pyqtSignal(str, int)
-    selectionPenChanged = pyqtSignal(str, int)
-    workingAreaPenChanged = pyqtSignal(str, int)
-    labelPenChanged = pyqtSignal(str)
+    borderPenChanged = Signal(str, int)
+    selectionPenChanged = Signal(str, int)
+    workingAreaPenChanged = Signal(str, int)
+    labelPenChanged = Signal(str)
 
     def __init__(self, settings, parent=None):
         super(drawingSettingsWidget, self).__init__(parent)
@@ -290,7 +290,7 @@ class drawingSettingsWidget(QWidget):
         self.spinbox_workingarea_width.valueChanged.connect(self.workingAreaWidthChanged)
         self.btn_label_color.clicked.connect(self.chooseLabelColor)
 
-    @pyqtSlot()
+    @Slot()
     def chooseBorderColor(self):
 
         color = QColorDialog.getColor()
@@ -299,7 +299,7 @@ class drawingSettingsWidget(QWidget):
         newcolor = "{:d}-{:d}-{:d}".format(color.red(), color.green(), color.blue())
         self.setBorderColor(newcolor)
 
-    @pyqtSlot()
+    @Slot()
     def chooseSelectionColor(self):
 
         color = QColorDialog.getColor()
@@ -308,7 +308,7 @@ class drawingSettingsWidget(QWidget):
         newcolor = "{:d}-{:d}-{:d}".format(color.red(), color.green(), color.blue())
         self.setSelectionColor(newcolor)
 
-    @pyqtSlot()
+    @Slot()
     def chooseWorkingAreaColor(self):
 
         color = QColorDialog.getColor()
@@ -317,7 +317,7 @@ class drawingSettingsWidget(QWidget):
         newcolor = "{:d}-{:d}-{:d}".format(color.red(), color.green(), color.blue())
         self.setWorkingAreaColor(newcolor)
 
-    @pyqtSlot()
+    @Slot()
     def chooseLabelColor(self):
 
         color = QColorDialog.getColor()
@@ -326,15 +326,15 @@ class drawingSettingsWidget(QWidget):
         newcolor = "{:d}-{:d}-{:d}".format(color.red(), color.green(), color.blue())
         self.setLabelColor(newcolor)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def borderWidthChanged(self, value):
         self.setBorderWidth(value)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def selectionWidthChanged(self, value):
         self.setSelectionWidth(value)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def workingAreaWidthChanged(self, value):
         self.setWorkingAreaWidth(value)
 
@@ -456,7 +456,7 @@ class drawingSettingsWidget(QWidget):
 
 class QtSettingsWidget(QWidget):
 
-    accepted = pyqtSignal()
+    accepted = Signal()
 
     def __init__(self, taglab_dir, parent=None):
         super(QtSettingsWidget, self).__init__(parent)
@@ -546,6 +546,6 @@ class QtSettingsWidget(QWidget):
         self.drawing_settings.setWorkingAreaWidth(self.workingarea_pen_width)
         self.drawing_settings.setLabelColor(self.label_pen_color)
 
-    @pyqtSlot(int)
+    @Slot(int)
     def display(self, i):
         self.stackedwidget.setCurrentIndex(i)

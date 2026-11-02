@@ -19,15 +19,15 @@
 
 import os
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QImage, QImageReader, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
-from PyQt5.QtWidgets import QWidget, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, QSize, Slot, Signal
+from PySide6.QtGui import QImage, QImageReader, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
+from PySide6.QtWidgets import QWidget, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from datetime import date
 from source import genutils
 
 class QtMapSettingsWidget(QWidget):
 
-    accepted = pyqtSignal()
+    accepted = Signal()
     def __init__(self, parent=None):
         super(QtMapSettingsWidget, self).__init__(parent)
 
@@ -107,7 +107,7 @@ class QtMapSettingsWidget(QWidget):
         self.fields["rgb_filename"]["edit"].setEnabled(True)
         self.fields["rgb_filename"]["button"].show()
 
-    @pyqtSlot()
+    @Slot()
     def chooseMapFile(self):
 
         filters = "Image (*.png *.jpg *.jpeg *.tif *.tiff)"
@@ -115,7 +115,7 @@ class QtMapSettingsWidget(QWidget):
         if fileName:
             self.fields["rgb_filename"]["edit"].setText(fileName)
 
-    @pyqtSlot()
+    @Slot()
     def chooseDEMFile(self):
 
         filters = "Image (*.png *.tif *.tiff)"
@@ -123,7 +123,7 @@ class QtMapSettingsWidget(QWidget):
         if fileName:
             self.fields["depth_filename"]["edit"].setText(fileName)
 
-    @pyqtSlot()
+    @Slot()
     def accept(self):
 
         for key, field in self.fields.items():

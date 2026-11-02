@@ -17,8 +17,8 @@
 #GNU General Public License (http://www.gnu.org/licenses/gpl.txt)
 # for more details.
 
-from PyQt5.QtGui import QImage
-from PyQt5.QtGui import QImageReader
+from PySide6.QtGui import QImage
+from PySide6.QtGui import QImageReader
 import rasterio as rio
 from source import genutils
 import numpy as np

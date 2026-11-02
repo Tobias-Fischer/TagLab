@@ -23,13 +23,13 @@ import csv
 import sys
 from datetime import datetime
 
-from PyQt5.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox
 from cv2 import fillPoly
 
 from skimage import measure
 from skimage.filters import sobel
-from PyQt5.QtGui import QPainter, QImage, QPen, QBrush, QColor, qRgb
-from PyQt5.QtCore import Qt, QObject, pyqtSignal, QRectF
+from PySide6.QtGui import QPainter, QImage, QPen, QBrush, QColor, qRgb
+from PySide6.QtCore import Qt, QObject, Signal, QRectF
 from skimage.color import rgb2gray
 from skimage.draw import polygon_perimeter
 

@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QFileDialog, QVBoxLayout, QHBoxLayout, QComboBox, QCheckBox, QLabel, QPushButton, QSpinBox, QMessageBox
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QDialog, QFileDialog, QVBoxLayout, QHBoxLayout, QComboBox, QCheckBox, QLabel, QPushButton, QSpinBox, QMessageBox
 import ezdxf
 from ezdxf.enums import TextEntityAlignment
 from ezdxf.entities import Layer

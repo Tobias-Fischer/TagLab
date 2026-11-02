@@ -1,5 +1,5 @@
 from source.QtCrackWidget import QtCrackWidget
-from PyQt5.QtCore import Qt, pyqtSlot
+from PySide6.QtCore import Qt, Slot
 
 from source.tools.Tool import Tool
 
@@ -36,11 +36,11 @@ class CreateCrack(Tool):
             self.viewerplus.crackWidget = crackWidget
 
 
-    @pyqtSlot()
+    @Slot()
     def crackCancel(self):
         self.viewerplus.resetTools()
 
-    @pyqtSlot()
+    @Slot()
     def crackApply(self):
 
         new_blobs = self.viewerplus.crackWidget.apply()

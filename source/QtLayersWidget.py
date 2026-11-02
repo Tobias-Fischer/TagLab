@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt,QSize, QEvent, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QIcon, QColor
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator, QWidget, QSizePolicy, QPushButton, QHeaderView
+from PySide6.QtCore import Qt,QSize, QEvent, Slot, Signal
+from PySide6.QtGui import QIcon, QColor
+from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator, QWidget, QSizePolicy, QPushButton, QHeaderView
 from pathlib import Path
 import os
 from source.Project import Project
@@ -13,10 +13,10 @@ imdir = str(path)
 imdir = imdir.replace('source', '')
 
 class QtLayersWidget(QTreeWidget):
-    showImage = pyqtSignal(Image)
-    toggleLayer = pyqtSignal(Layer, bool)
-    toggleAnnotations = pyqtSignal(str, Image, bool)
-    deleteLayer = pyqtSignal(Image, Layer)
+    showImage = Signal(Image)
+    toggleLayer = Signal(Layer, bool)
+    toggleAnnotations = Signal(str, Image, bool)
+    deleteLayer = Signal(Image, Layer)
 
     def __init__(self, parent=None):
         super(QtLayersWidget, self).__init__(parent)

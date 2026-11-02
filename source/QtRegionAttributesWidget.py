@@ -18,9 +18,9 @@
 # for more details.
 
 
-from PyQt5.QtCore import Qt, QEvent, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QColor, QPalette
-from PyQt5.QtWidgets import QGridLayout, QWidget, QGroupBox, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, QEvent, Slot, Signal
+from PySide6.QtGui import QColor, QPalette
+from PySide6.QtWidgets import QGridLayout, QWidget, QGroupBox, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout, QTextEdit, QTableWidget, QTableWidgetItem, QFrame, QHeaderView, QToolTip
 import os, json, re
 from source.RegionAttributes import RegionAttributes
@@ -28,7 +28,7 @@ from copy import deepcopy
 
 class QtRegionAttributesWidget(QWidget):
 
-    closed = pyqtSignal()
+    closed = Signal()
 
     def __init__(self, dir, project, parent=None):
         super(QtRegionAttributesWidget, self).__init__(parent)
@@ -252,7 +252,7 @@ class QtRegionAttributesWidget(QWidget):
         self.createFields()
         self.updateFieldType()
 
-    @pyqtSlot()
+    @Slot()
     def apply(self):
         self.region_attributes.name = self.edit_name.text()
         self.region_attributes.description = self.edit_description.document().toPlainText()
@@ -286,7 +286,7 @@ class QtRegionAttributesWidget(QWidget):
         super(QtRegionAttributesWidget, self).closeEvent(event)
 
 
-    @pyqtSlot()
+    @Slot()
     def newRegionAttributes(self):
         if len(self.region_attributes.data) > 0:
             box = QMessageBox()
@@ -303,7 +303,7 @@ class QtRegionAttributesWidget(QWidget):
         self.edit_description.setText("")
         self.createFields()
 
-    @pyqtSlot()
+    @Slot()
     def loadRegionAttributes(self):
 
         if len(self.region_attributes.data) > 0:
@@ -329,7 +329,7 @@ class QtRegionAttributesWidget(QWidget):
         self.region_attributes = data
         self.createFields()
 
-    @pyqtSlot()
+    @Slot()
     def saveRegionAttributes(self):
 
         self.region_attributes.name = self.edit_name.text()
@@ -389,7 +389,7 @@ class QtRegionAttributesWidget(QWidget):
 
         self.table.setItem(row, 2, QTableWidgetItem(constraints))
 
-    @pyqtSlot(int, int)
+    @Slot(int, int)
     def selectRow(self, row, column):
 
         if row >= len(self.region_attributes.data):
@@ -425,7 +425,7 @@ class QtRegionAttributesWidget(QWidget):
         self.editValues.setText("")
         self.updateFieldType()
 
-    @pyqtSlot()
+    @Slot()
     def onTableSelectionChanged(self):
         if self.selectedRow() < 0:
             self.clearField()
@@ -488,7 +488,7 @@ class QtRegionAttributesWidget(QWidget):
         field['keywords'] = keywords
         return field
 
-    @pyqtSlot()
+    @Slot()
     def addField(self):
         #validate text
         field = self.validateField()
@@ -504,7 +504,7 @@ class QtRegionAttributesWidget(QWidget):
         self.clearField()
 
 
-    @pyqtSlot()
+    @Slot()
     def updateField(self):
         row = self.selectedRow()
 
@@ -526,7 +526,7 @@ class QtRegionAttributesWidget(QWidget):
         if len(self.region_attributes.data) > 0:
             self.selectRow(row, 0)
 
-    @pyqtSlot()
+    @Slot()
     def moveFieldUp(self):
         row = self.selectedRow()
         if row <= 0:
@@ -536,7 +536,7 @@ class QtRegionAttributesWidget(QWidget):
         self.createFields()
         self.selectRow(row - 1, 0)
 
-    @pyqtSlot()
+    @Slot()
     def moveFieldDown(self):
         row = self.selectedRow()
         if row < 0 or row >= len(self.region_attributes.data) - 1:
@@ -546,7 +546,7 @@ class QtRegionAttributesWidget(QWidget):
         self.createFields()
         self.selectRow(row + 1, 0)
 
-    @pyqtSlot()
+    @Slot()
     def removeField (self):
         row = self.selectedRow()
 
@@ -557,7 +557,7 @@ class QtRegionAttributesWidget(QWidget):
         del self.region_attributes.data[row]
         self.table.removeRow(row)
 
-    @pyqtSlot()
+    @Slot()
     def updateFieldType(self):
 
         self.editMin.clear()

@@ -6,8 +6,8 @@
 # ISTI - Italian National Research Council
 # All rights reserved.
 
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QSizePolicy
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QSizePolicy
 
 
 class QtToolMessagePanel(QWidget):

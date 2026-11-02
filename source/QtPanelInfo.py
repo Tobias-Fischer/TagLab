@@ -1,9 +1,9 @@
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRectF, \
-    QSize, QModelIndex, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QGridLayout, QWidget, QTableView, QTabWidget, QSpinBox, QLineEdit, QDoubleSpinBox, \
+from PySide6 import QtCore, QtGui
+from PySide6.QtCore import Qt, QAbstractTableModel, QItemSelectionModel, QSortFilterProxyModel, QRectF, \
+    QSize, QModelIndex, Slot, Signal
+from PySide6.QtWidgets import QGridLayout, QWidget, QTableView, QTabWidget, QSpinBox, QLineEdit, QDoubleSpinBox, \
     QHeaderView, QAbstractItemView, QSizePolicy, QComboBox, QLabel, QVBoxLayout, QTextEdit, QCheckBox
-from PyQt5.QtGui import QColor, QPixmap, QPainter, QPainterPath, QBrush, QLinearGradient
+from PySide6.QtGui import QColor, QPixmap, QPainter, QPainterPath, QBrush, QLinearGradient
 import numpy as np
 from source.Blob import Blob
 from source.Point import Point
@@ -232,7 +232,7 @@ class QtPanelInfo(QTabWidget):
         self.labels = {}
         self.labels = newdict
 
-    @pyqtSlot(QModelIndex)
+    @Slot(QModelIndex)
     def doubleClickedCell(self, index):
 
         if index.column() == 0 or index.column() == 1:

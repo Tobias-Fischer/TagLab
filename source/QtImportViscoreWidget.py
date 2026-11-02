@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox, QWidget, QFileDialog, QApplication
-from PyQt5.QtWidgets import QComboBox, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtWidgets import QMessageBox, QWidget, QFileDialog, QApplication
+from PySide6.QtWidgets import QComboBox, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 
 from source.Point import Point
 
@@ -10,8 +10,8 @@ import pandas as pd
 
 
 class QtImportViscoreWidget(QWidget):
-    closewidget = pyqtSignal()
-    validchoices = pyqtSignal()
+    closewidget = Signal()
+    validchoices = Signal()
 
     def __init__(self, parent=None):
         super(QtImportViscoreWidget, self).__init__(parent)
@@ -84,7 +84,7 @@ class QtImportViscoreWidget(QWidget):
         if file_path:
             self.editCSV.setText(file_path)
 
-    @pyqtSlot()
+    @Slot()
     def apply(self):
         """
 

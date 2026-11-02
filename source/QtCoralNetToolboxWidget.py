@@ -26,11 +26,11 @@ from io import TextIOBase
 
 import pandas as pd
 
-from PyQt5.QtGui import QFont, QColor
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QFileDialog, QApplication, QMessageBox, QTextEdit
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QScrollArea, QHeaderView, QComboBox
-from PyQt5.QtWidgets import QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtGui import QFont, QColor
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtWidgets import QWidget, QFileDialog, QApplication, QMessageBox, QTextEdit
+from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QScrollArea, QHeaderView, QComboBox
+from PySide6.QtWidgets import QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 
 from source.tools.CoralNetToolbox.API import submit_jobs
 from source.tools.CoralNetToolbox.Upload import upload_images
@@ -64,7 +64,7 @@ class ConsoleWidget(QTextEdit):
 
 
 class QtCoralNetToolboxWidget(QWidget):
-    closed = pyqtSignal()
+    closed = Signal()
 
     def __init__(self, parent=None):
         super(QtCoralNetToolboxWidget, self).__init__(parent)
@@ -377,7 +377,7 @@ class QtCoralNetToolboxWidget(QWidget):
 
         self.setLayout(layoutFinal)
 
-    @pyqtSlot()
+    @Slot()
     def getCoralNetUsername(self):
         """
 
@@ -386,7 +386,7 @@ class QtCoralNetToolboxWidget(QWidget):
         if coralnetUsername:
             self.editUsername.setText(coralnetUsername)
 
-    @pyqtSlot()
+    @Slot()
     def getCoralNetPassword(self):
         """
 
@@ -395,7 +395,7 @@ class QtCoralNetToolboxWidget(QWidget):
         if coralnetPassword:
             self.editPassword.setText(coralnetPassword)
 
-    @pyqtSlot()
+    @Slot()
     def chooseOutputFolder(self):
         """
 
@@ -430,7 +430,7 @@ class QtCoralNetToolboxWidget(QWidget):
         except Exception as e:
             raise Exception(f"Failed load Source list. {e}")
 
-    @pyqtSlot()
+    @Slot()
     def coralnetAuthenticate(self):
         """
         Authenticates the username and password before starting the process.
@@ -487,7 +487,7 @@ class QtCoralNetToolboxWidget(QWidget):
         self.console_widget.clearConsole()
         QApplication.restoreOverrideCursor()
 
-    @pyqtSlot(str)
+    @Slot(str)
     def filterSourceList(self, search_text):
         """
         Filter the rows in the source list table based on the search text.
@@ -541,7 +541,7 @@ class QtCoralNetToolboxWidget(QWidget):
         # Add the row
         self.mapping_layout.addWidget(row_widget)
 
-    @pyqtSlot()
+    @Slot()
     def taglabLoadLabelsetPanel(self):
         """
 
@@ -581,7 +581,7 @@ class QtCoralNetToolboxWidget(QWidget):
         self.console_widget.clearConsole()
         QApplication.restoreOverrideCursor()
 
-    @pyqtSlot()
+    @Slot()
     def taglabImportMapping(self):
         """
 
@@ -614,7 +614,7 @@ class QtCoralNetToolboxWidget(QWidget):
                 # Add row to mapping table
                 self.addRowToLabelMapping(label_id, left_label, right_label)
 
-    @pyqtSlot()
+    @Slot()
     def taglabExportMapping(self):
         """
 
@@ -649,7 +649,7 @@ class QtCoralNetToolboxWidget(QWidget):
                 msgBox.setText(f"File saved successfully")
                 msgBox.exec()
 
-    @pyqtSlot()
+    @Slot()
     def apply(self):
         """
 

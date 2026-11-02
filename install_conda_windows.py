@@ -173,7 +173,7 @@ if flag_install_pytorch_cpu == True:
 install_requires = [
     'msvc-runtime',
     'wheel',
-    'pyqt5',
+    'pyside6',
     'scikit-image',
     'scikit-learn',
     'pandas',

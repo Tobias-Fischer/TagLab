@@ -1,5 +1,5 @@
 from source.tools.Tool import Tool
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 class EditBorder(Tool):
     def __init__(self, viewerplus, edit_points):

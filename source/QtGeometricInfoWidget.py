@@ -19,9 +19,9 @@
 
 import os
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal, QPointF
-from PyQt5.QtGui import QColor, QPen, QBrush, QPolygonF, QPainterPath
-from PyQt5.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout,  QCheckBox, QRadioButton, QLayout, QFileDialog, QMessageBox, QComboBox, QGraphicsPolygonItem, QGroupBox, QDialog
+from PySide6.QtCore import Qt, Slot, Signal, QPointF
+from PySide6.QtGui import QColor, QPen, QBrush, QPolygonF, QPainterPath
+from PySide6.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout,  QCheckBox, QRadioButton, QLayout, QFileDialog, QMessageBox, QComboBox, QGraphicsPolygonItem, QGroupBox, QDialog
 from skimage import measure
 import math
 import csv
@@ -374,7 +374,7 @@ class QtGeometricInfoWidget(QWidget):
         return
 
     # close the widget
-    closewidget = pyqtSignal()
+    closewidget = Signal()
     def closeEvent(self, event):
         # remove fitted and colorized shapes, if any
         self.removeFittedRectangles()
@@ -406,7 +406,7 @@ class QtGeometricInfoWidget(QWidget):
         
         return super(QtGeometricInfoWidget, self).eventFilter(obj, event)
 
-    @pyqtSlot()
+    @Slot()
     def onSelectionChanged(self): # Called when the selection changes in the viewer
         self.btnRecompute.setEnabled(True)
         self.btnRecompute.setText("Selection has changed, update the regions working set")
@@ -691,7 +691,7 @@ class QtGeometricInfoWidget(QWidget):
         return
 
     # Handle table selection changes to highlight the corresponding region
-    @pyqtSlot()
+    @Slot()
     def onTableSelectionChanged(self):
         """Highlight the region corresponding to the selected table row"""
         # Remove previous highlight
@@ -1001,7 +1001,7 @@ class QtGeometricInfoWidget(QWidget):
         btn_cancel.clicked.connect(dialog.reject)
         
         # Show dialog and process result
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.Accepted:
             self.addAttributesToRegions()
     
     def toggleAllCheckboxes(self, checked):

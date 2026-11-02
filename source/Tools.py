@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PySide6.QtCore import Qt
 
 from source.tools.PickPoints import PickPoints
 from source.tools.EditPoints import EditPoints
@@ -23,7 +23,7 @@ from source.tools.SelectArea import SelectArea
 from source.tools.Ritm import Ritm
 from source.tools.PlaceAnnPoint import PlaceAnnPoint
 
-from PyQt5.QtCore import Qt, QObject, QPointF, QRectF, QFileInfo, QDir, pyqtSlot, pyqtSignal, QT_VERSION_STR
+from PySide6.QtCore import Qt, QObject, QPointF, QRectF, QFileInfo, QDir, Slot, Signal
 
 import os
 import importlib

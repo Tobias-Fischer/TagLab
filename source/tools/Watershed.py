@@ -15,7 +15,7 @@ from PIL import Image
 
 import matplotlib.pyplot as plt
 
-from PyQt5.QtCore import Qt, QObject, QPointF, QRectF, QFileInfo, QDir, pyqtSlot, pyqtSignal, QT_VERSION_STR
+from PySide6.QtCore import Qt, QObject, QPointF, QRectF, QFileInfo, QDir, Slot, Signal
 
 from source.Label import Label
 

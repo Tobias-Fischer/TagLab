@@ -18,16 +18,16 @@
 # for more details.
 
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QMessageBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QWidget, QMessageBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout
 
 
 class QtCropWidget(QWidget):
 
-    areaChanged = pyqtSignal(int, int, int, int)
-    closed = pyqtSignal()
+    areaChanged = Signal(int, int, int, int)
+    closed = Signal()
 
     def __init__(self, parent=None):
         super(QtCropWidget, self).__init__(parent)
@@ -128,7 +128,7 @@ class QtCropWidget(QWidget):
         self.closed.emit()
         super(QtCropWidget, self).closeEvent(event)
 
-    @pyqtSlot(str)
+    @Slot(str)
     def notifyAreaChanged(self, txt):
 
         try:
@@ -142,7 +142,7 @@ class QtCropWidget(QWidget):
             pass
 
 
-    @pyqtSlot(int, int, int, int)
+    @Slot(int, int, int, int)
     def updateArea(self, x, y, w, h):
 
         self.edit_X.setText(str(x))

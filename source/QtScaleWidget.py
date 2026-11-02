@@ -18,16 +18,16 @@
 # for more details.
 
 
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
-from PyQt5.QtWidgets import QWidget, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, QSize, Slot, Signal
+from PySide6.QtWidgets import QWidget, QMessageBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout
 
 
 
 class QtScaleWidget(QWidget):
 
-    newscale = pyqtSignal(float)
-    closewidget = pyqtSignal()
+    newscale = Signal(float)
+    closewidget = Signal()
 
     def __init__(self, parent=None):
         super(QtScaleWidget, self).__init__(parent)
@@ -126,7 +126,7 @@ class QtScaleWidget(QWidget):
         super(QtScaleWidget, self).closeEvent(event)
 
 
-    @pyqtSlot(float)
+    @Slot(float)
     def setMeasure(self, value):
         #NOTE! THE VALUE RETURNED FROM MEASURE (in ruler) IS IN CM
         conversion = (value*10) / float(self.edit_scale.text())
@@ -141,7 +141,7 @@ class QtScaleWidget(QWidget):
         self.label_current_scale_value.setText(("{:.3f}".format(value)))
         self.edit_scale.setText(("{:.3f}".format(value)))
 
-    @pyqtSlot(str)
+    @Slot(str)
     def computeScale(self, text):
         try:
             val = float(text)/float(self.edit_px.text())
@@ -149,7 +149,7 @@ class QtScaleWidget(QWidget):
         except:
             pass
 
-    @pyqtSlot(str)
+    @Slot(str)
     def editScale(self, text):
         try:
             val = float(text)*float(self.edit_px.text())
@@ -157,7 +157,7 @@ class QtScaleWidget(QWidget):
         except:
             pass
 
-    @pyqtSlot()
+    @Slot()
     def setNewScale(self):
         try:        
             new_scale = float(self.edit_scale.text())

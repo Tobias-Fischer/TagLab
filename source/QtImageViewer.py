@@ -1,7 +1,7 @@
 import os.path
-from PyQt5.QtCore import Qt, QPointF, QRectF, QFileInfo, QDir, pyqtSlot, pyqtSignal, QT_VERSION_STR
-from PyQt5.QtGui import QImage, QPixmap, QPainter, QPainterPath, QPen, QImageReader, QMouseEvent
-from PyQt5.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QFileDialog, QGraphicsPixmapItem
+from PySide6.QtCore import Qt, QPointF, QRectF, QFileInfo, QDir, Slot, Signal
+from PySide6.QtGui import QImage, QPixmap, QPainter, QPainterPath, QPen, QImageReader, QMouseEvent
+from PySide6.QtWidgets import QApplication, QGraphicsView, QGraphicsScene, QFileDialog, QGraphicsPixmapItem
 
 class QtImageViewer(QGraphicsView):
     """
@@ -9,14 +9,14 @@ class QtImageViewer(QGraphicsView):
     The input image (it must be a QImage) is internally converted into a QPixmap.
     """
 
-    viewUpdated = pyqtSignal(QRectF)                  # region visible in percentage
-    viewHasChanged = pyqtSignal(float, float, float)  # posx, posy, posz
+    viewUpdated = Signal(QRectF)                  # region visible in percentage
+    viewHasChanged = Signal(float, float, float)  # posx, posy, posz
 
-    mouseDown = pyqtSignal(QMouseEvent)
-    mouseMove = pyqtSignal(QMouseEvent)
-    mouseUp = pyqtSignal(QMouseEvent)
+    mouseDown = Signal(QMouseEvent)
+    mouseMove = Signal(QMouseEvent)
+    mouseUp = Signal(QMouseEvent)
 
-    mouseOut = pyqtSignal()
+    mouseOut = Signal()
 
     def __init__(self):
         QGraphicsView.__init__(self)
@@ -118,7 +118,7 @@ class QtImageViewer(QGraphicsView):
 
         self.updateViewer()
 
-    @pyqtSlot()
+    @Slot()
     def viewChanged(self):
         if not self.imgwidth:
             return
@@ -129,7 +129,7 @@ class QtImageViewer(QGraphicsView):
         zoom = self.zoom_factor / self.px_to_mm
         self.viewHasChanged.emit(posx, posy, zoom)
 
-    @pyqtSlot(float, float, float)
+    @Slot(float, float, float)
     def setViewParameters(self, posx, posy, zoomfactor):
         if not self.isVisible():
             return
@@ -233,7 +233,7 @@ class QtImageViewer(QGraphicsView):
             self.ZOOM_FACTOR_MIN = min(1.0 * self.width() / self.imgwidth, 1.0 * self.height() / self.imgheight)
         self.updateViewer()
 
-    @pyqtSlot(float, float)
+    @Slot(float, float)
     def center(self, x, y):
         if self.img_map is None:
             return

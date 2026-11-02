@@ -18,17 +18,17 @@
 # for more details.
 
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QMessageBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QWidget, QMessageBox, QSizePolicy, QLineEdit, QLabel, QPushButton, \
     QHBoxLayout, QVBoxLayout, QApplication
 import json
 
 
 class QtWorkingAreaWidget(QWidget):
 
-    areaChanged = pyqtSignal(int, int, int, int)
-    closed = pyqtSignal()
+    areaChanged = Signal(int, int, int, int)
+    closed = Signal()
 
     def __init__(self, parent=None, scale=None):
         super(QtWorkingAreaWidget, self).__init__(parent)
@@ -349,7 +349,7 @@ class QtWorkingAreaWidget(QWidget):
 
         
 
-    @pyqtSlot(str)
+    @Slot(str)
     def notifyAreaChanged(self, txt):
         """
         manual change of the working area in pixels
@@ -365,7 +365,7 @@ class QtWorkingAreaWidget(QWidget):
         except:
             pass
 
-    @pyqtSlot(str)
+    @Slot(str)
     def notifyAreaChangedM(self, txt):
         """
         manual change of the working area in meters
@@ -384,7 +384,7 @@ class QtWorkingAreaWidget(QWidget):
         except:
             pass
 
-    @pyqtSlot(int, int, int, int)
+    @Slot(int, int, int, int)
     def updateArea(self, x, y, w, h):
         """
         area has been updated: update the values

@@ -42,6 +42,9 @@ with CUDA enabled.
 
 See the instructions on the [wiki](https://github.com/cnr-isti-vclab/TagLab/wiki/Install-TagLab).
 
+The user interface uses Qt 6 through PySide6 (`pip install pyside6`) instead of PyQt5. If you update an existing
+installation, re-run `install.py` (or `pip install pyside6`) and you can remove `pyqt5`.
+
 ## Updating TagLab
 
 If you already installed TagLab and you need to update to a new version, you can just run the `update.py` script from 

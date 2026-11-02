@@ -1,14 +1,14 @@
-from PyQt5.QtCore import Qt, QSize, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QIcon, QPalette, QColor
-from PyQt5.QtWidgets import QSizePolicy, QCheckBox, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
-from PyQt5.QtWidgets import QRadioButton, QButtonGroup, QGroupBox, QMessageBox,  QWidget, QComboBox
+from PySide6.QtCore import Qt, QSize, Slot, Signal
+from PySide6.QtGui import QIcon, QPalette, QColor
+from PySide6.QtWidgets import QSizePolicy, QCheckBox, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QRadioButton, QButtonGroup, QGroupBox, QMessageBox,  QWidget, QComboBox
 from source import genutils
 
 class QtSampleWidget(QWidget):
 
-    # choosedSample = pyqtSignal(int)
-    closewidget = pyqtSignal()
-    validchoices= pyqtSignal()
+    # choosedSample = Signal(int)
+    closewidget = Signal()
+    validchoices= Signal()
 
     def __init__(self, active_image, working_area, parent=None):
         super(QtSampleWidget, self).__init__(parent)
@@ -297,7 +297,7 @@ class QtSampleWidget(QWidget):
 
         self.active_image = active_image
 
-    @pyqtSlot(int, int, int, int)
+    @Slot(int, int, int, int)
     def updateSamplingArea(self, x, y, width, height):
 
         self.edit_top_SA.setText(str(y))
@@ -306,7 +306,7 @@ class QtSampleWidget(QWidget):
         self.edit_width_px.setText(str(width))
         self.edit_height_px.setText(str(height))
 
-    @pyqtSlot(float, float, float, float)
+    @Slot(float, float, float, float)
     def setTransect(self, x1, y1, x2, y2):
 
         self.edit_x1.setText(str(round(x1)))
@@ -314,7 +314,7 @@ class QtSampleWidget(QWidget):
         self.edit_x2.setText(str(round(x2)))
         self.edit_y2.setText(str(round(y2)))
 
-    @pyqtSlot()
+    @Slot()
     def updateSAOffsetInCm(self):
 
         txt = self.edit_offset_px.text()
@@ -329,7 +329,7 @@ class QtSampleWidget(QWidget):
 
         self.edit_offset_cm.blockSignals(False)
 
-    @pyqtSlot()
+    @Slot()
     def updateSAOffsetInPx(self):
 
         txt = self.edit_offset_cm.text()
@@ -344,7 +344,7 @@ class QtSampleWidget(QWidget):
 
         self.edit_offset_px.blockSignals(False)
 
-    @pyqtSlot()
+    @Slot()
     def updateSAWidthInCm(self):
 
         txt = self.edit_width_px.text()
@@ -359,7 +359,7 @@ class QtSampleWidget(QWidget):
 
         self.edit_width_cm.blockSignals(False)
 
-    @pyqtSlot()
+    @Slot()
     def updateSAHeightInCm(self):
 
         txt = self.edit_height_px.text()
@@ -374,7 +374,7 @@ class QtSampleWidget(QWidget):
 
         self.edit_height_cm.blockSignals(False)
 
-    @pyqtSlot()
+    @Slot()
     def updateSAWidthInPixel(self):
 
         txt = self.edit_width_cm.text()
@@ -389,7 +389,7 @@ class QtSampleWidget(QWidget):
 
         self.edit_width_px.blockSignals(False)
 
-    @pyqtSlot()
+    @Slot()
     def updateSAHeightInPixel(self):
 
         txt = self.edit_height_cm.text()
@@ -405,7 +405,7 @@ class QtSampleWidget(QWidget):
         self.edit_height_px.blockSignals(False)
 
 
-    @pyqtSlot()
+    @Slot()
     def enableSAGroup(self):
 
         self.radio_SA.setStyleSheet("color: white")
@@ -420,7 +420,7 @@ class QtSampleWidget(QWidget):
         self.disableWAGroup()
         self.disableTransectGroup()
 
-    @pyqtSlot()
+    @Slot()
     def enableWAGroup(self):
 
         if self.working_area:
@@ -444,7 +444,7 @@ class QtSampleWidget(QWidget):
 
 
 
-    @pyqtSlot()
+    @Slot()
     def enableTransectGroup(self):
 
         self.radio_T.setStyleSheet("color: white")

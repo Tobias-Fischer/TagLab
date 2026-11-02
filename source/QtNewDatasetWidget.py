@@ -20,13 +20,13 @@
 
 import os
 
-from PyQt5.QtCore import Qt, pyqtSlot, pyqtSignal
-from PyQt5.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
-from PyQt5.QtWidgets import QWidget, QCheckBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
+from PySide6.QtCore import Qt, Slot, Signal
+from PySide6.QtGui import QImage, QPixmap, QIcon, qRgb, qRed, qGreen, qBlue
+from PySide6.QtWidgets import QWidget, QCheckBox, QFileDialog, QComboBox, QSizePolicy, QLineEdit, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 
 class QtNewDatasetWidget(QWidget):
 
-    closed = pyqtSignal()
+    closed = Signal()
 
     def __init__(self, export_area, parent=None):
         super(QtNewDatasetWidget, self).__init__(parent)
@@ -161,7 +161,7 @@ class QtNewDatasetWidget(QWidget):
         # default widget size is not so accurate in this case..
         self.update()
 
-    @pyqtSlot()
+    @Slot()
     def chooseDatasetFolder(self):
 
         folderName = QFileDialog.getExistingDirectory(self, "Choose a Folder to Export the Dataset", "")

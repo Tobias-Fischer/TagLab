@@ -1,7 +1,7 @@
 import numpy as np
 from skimage.measure import points_in_poly
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PySide6.QtCore import Qt, Signal
 
 from source.tools.Tool import Tool
 
@@ -14,7 +14,7 @@ class SplitBlob(Tool):
         self.CROSS_LINE_WIDTH = 2
         self.pick_style   = {'width': self.CROSS_LINE_WIDTH, 'color': Qt.cyan, 'size': 6}
 
-        infoMessage = pyqtSignal(str)
+        infoMessage = Signal(str)
 
     def leftPressed(self, x, y, mods):
         selected_blobs = self.viewerplus.selected_blobs
