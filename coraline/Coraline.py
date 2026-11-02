@@ -4,23 +4,35 @@ import sys
 from skimage.filters import gaussian
 from skimage.restoration import denoise_bilateral
 import numpy as np
+import os
 from os import path
 
 this_directory = path.abspath(path.dirname(__file__))
 
-try:
-	if sys.platform == "linux" or sys.platform == "linux2":
-		lib = cdll.LoadLibrary(this_directory + '/libcoraline.so')
+def _find_library():
+	"""libcoraline next to this file (built in place), else in the conda environment (libcoraline package)."""
+	if sys.platform.startswith("linux"):
+		name, prefix_dirs = 'libcoraline.so', ('lib',)
 	elif sys.platform == "win32":
-		lib = cdll.LoadLibrary(this_directory + '/coraline.dll')
+		name, prefix_dirs = 'coraline.dll', ('Library/bin', 'bin')
 	elif sys.platform == "darwin":
-		lib = cdll.LoadLibrary(this_directory + '/libcoraline.dylib')
+		name, prefix_dirs = 'libcoraline.dylib', ('lib',)
 	else:
-		lib = None
+		return None
+	candidates = [path.join(this_directory, name)]
+	for prefix in {sys.prefix, os.environ.get('CONDA_PREFIX', sys.prefix)}:
+		candidates += [path.join(prefix, d, name) for d in prefix_dirs]
+	for c in candidates:
+		if path.exists(c):
+			return c
+	return None
 
-except:
+try:
+	_libfile = _find_library()
+	lib = cdll.LoadLibrary(_libfile) if _libfile else None
+except OSError:
 	lib = None
-	
+
 if lib == None:
 	print('Could not load libcoraline')
 
