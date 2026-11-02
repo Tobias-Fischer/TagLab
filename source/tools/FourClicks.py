@@ -84,10 +84,7 @@ class FourClicks(Tool):
 
         arr = np.zeros((h, w, 3), dtype=np.uint8)
 
-        bits = image_cropped.bits()
-        bits.setsize(int(h * w * 4))
-        arrtemp = np.frombuffer(bits, np.uint8).copy()
-        arrtemp = np.reshape(arrtemp, [h, w, 4])
+        arrtemp = genutils.qimageBgra(image_cropped)
         arr[:, :, 0] = arrtemp[:, :, 2]
         arr[:, :, 1] = arrtemp[:, :, 1]
         arr[:, :, 2] = arrtemp[:, :, 0]

@@ -78,7 +78,7 @@ class NoteWidget(QPlainTextEdit):
     editFinishing = Signal()
 
     def __init__(self, parent):
-        super(QPlainTextEdit, self).__init__(parent)
+        super().__init__(parent)
 
         self.setStyleSheet("background-color: rgb(40,40,40); color: white")
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)

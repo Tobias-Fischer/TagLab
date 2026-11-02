@@ -14,7 +14,9 @@ class MyGText(QGraphicsTextItem):
     focusOut = Signal()
 
     def __init__(self, parent=None, scene=None):
-        super(QGraphicsTextItem, self).__init__(parent, scene)
+        super().__init__(parent)
+        if scene is not None:
+            scene.addItem(self)
 
     def focusOutEvent(self, event):
         self.focusOut.emit()
@@ -24,7 +26,7 @@ class MyGText(QGraphicsTextItem):
 class Grid(QObject):
 
     def __init__(self, parent=None):
-        super(QObject, self).__init__(parent)
+        super().__init__(parent)
 
         self.width = 0
         self.height = 0

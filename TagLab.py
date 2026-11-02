@@ -2616,17 +2616,19 @@ class TagLab(QMainWindow):
         """
         Update the combobox without changing the source image.
         """
-        self.comboboxSourceImage.disconnect()
+        # (QObject.disconnect() without arguments does not exist in PySide6)
+        self.comboboxSourceImage.blockSignals(True)
         self.comboboxSourceImage.setCurrentIndex(index)
-        self.comboboxSourceImage.currentIndexChanged.connect(self.sourceImageChanged)
+        self.comboboxSourceImage.blockSignals(False)
 
     def updateComboboxTargetImage(self, index):
         """
         Update the combobox without changing the target image.
         """
-        self.comboboxTargetImage.disconnect()
+        # (QObject.disconnect() without arguments does not exist in PySide6)
+        self.comboboxTargetImage.blockSignals(True)
         self.comboboxTargetImage.setCurrentIndex(index)
-        self.comboboxTargetImage.currentIndexChanged.connect(self.targetImageChanged)
+        self.comboboxTargetImage.blockSignals(False)
 
     def storeCurrentViewsParameters(self):
         """

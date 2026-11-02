@@ -620,6 +620,17 @@ def cropQImage(qimage_map, bbox):
 
     return qimage_cropped
 
+def qimageBgra(qimg):
+    """The pixels of a QImage as an (h, w, 4) uint8 array in memory order (B, G, R, A on little-endian machines).
+    (PySide6: bits() is a memoryview of the whole buffer, which may have padded rows.)"""
+
+    if qimg.format() not in (QImage.Format_RGB32, QImage.Format_ARGB32, QImage.Format_ARGB32_Premultiplied):
+        qimg = qimg.convertToFormat(QImage.Format_RGB32)
+    w, h = qimg.width(), qimg.height()
+    buf = np.frombuffer(qimg.constBits(), np.uint8)
+    return buf[:h * qimg.bytesPerLine()].reshape(h, qimg.bytesPerLine())[:, :w * 4].reshape(h, w, 4).copy()
+
+
 def qimageToNumpyArray(qimg):
 
     w = qimg.width()
@@ -630,10 +641,7 @@ def qimageToNumpyArray(qimg):
 
     arr = np.zeros((h, w, 3), dtype=np.uint8)
 
-    bits = qimg.bits()
-    bits.setsize(int(h * w * 4))
-    arrtemp = np.frombuffer(bits, np.uint8).copy()
-    arrtemp = np.reshape(arrtemp, [h, w, 4])
+    arrtemp = qimageBgra(qimg)
     arr[:, :, 0] = arrtemp[:, :, 2]
     arr[:, :, 1] = arrtemp[:, :, 1]
     arr[:, :, 2] = arrtemp[:, :, 0]

@@ -52,7 +52,7 @@ class MapClassifier(QObject):
     updateProgress = Signal(float)
 
     def __init__(self, classifier_info, labels_dictionary, parent=None):
-        super(QObject, self).__init__(parent)
+        super().__init__(parent)
 
         self.classifier_name = classifier_info['Classifier Name']
         self.nclasses = classifier_info['Num. Classes']
