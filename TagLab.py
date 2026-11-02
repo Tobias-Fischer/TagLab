@@ -112,6 +112,7 @@ from source.QtImportViscoreWidget import QtImportViscoreWidget
 from source.QtExportCoralNetDataWidget import QtExportCoralNetDataWidget
 
 from source import genutils
+from source.ModelWeights import ensureModel
 from source.Blob import Blob
 from source.Shape import Layer, Shape
 
@@ -6360,6 +6361,10 @@ class TagLab(QMainWindow):
                     msgBox.exec()
                     return
 
+            # download the weights of the classifier if they are missing
+            if ensureModel(classifier_selected['Weights'], self) is None:
+                return
+
             # free GPU memory
             self.resetNetworks()
             self.setupProgressBar()
@@ -6435,6 +6440,10 @@ class TagLab(QMainWindow):
                     msgBox.setText(txt)
                     msgBox.exec()
                     return
+
+            # download the weights of the classifier if they are missing
+            if ensureModel(classifier_selected['Weights'], self) is None:
+                return
 
             # free GPU memory
             self.resetNetworks()

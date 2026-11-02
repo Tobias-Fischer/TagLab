@@ -12,7 +12,8 @@ from sklearn.metrics import confusion_matrix
 from models.coral_dataset import CoralsDataset
 import models.losses as losses
 from PySide6.QtWidgets import QApplication
-from source.genutils import requirePackage, taglabPath
+from source.genutils import requirePackage
+from source.ModelWeights import ensureModel
 
 
 def QHAdam(*args, **kwargs):
@@ -322,10 +323,15 @@ def trainingNetwork(images_folder_train, labels_folder_train, images_folder_val,
     # num_classes parmeters adapt the num classes to the new dictionary
     net = DeepLab(backbone='resnet', output_stride=16, num_classes=output_classes)
 
+    # the base network is downloaded when missing
+    base_network = ensureModel("deeplab-resnet.pth.tar")
+    if base_network is None:
+        raise Exception("The base network deeplab-resnet.pth.tar is not available, the training cannot start.")
+
     if torch.cuda.is_available():
-        state = torch.load(taglabPath("models", "deeplab-resnet.pth.tar"), weights_only=False, map_location=torch.device("cuda"))
+        state = torch.load(base_network, weights_only=False, map_location=torch.device("cuda"))
     else:
-        state = torch.load(taglabPath("models", "deeplab-resnet.pth.tar"), weights_only=False, map_location=torch.device("cpu"))
+        state = torch.load(base_network, weights_only=False, map_location=torch.device("cpu"))
 
     # RE-INIZIALIZE THE CLASSIFICATION LAYER WITH THE RIGHT NUMBER OF CLASSES, DON'T LOAD WEIGHTS OF THE CLASSIFICATION LAYER
     new_dictionary = state['state_dict']

@@ -45,6 +45,8 @@ See the instructions on the [wiki](https://github.com/cnr-isti-vclab/TagLab/wiki
 The user interface uses Qt 6 through PySide6 (`pip install pyside6`) instead of PyQt5. If you update an existing
 installation, re-run `install.py` (or `pip install pyside6`) and you can remove `pyqt5`.
 
+Network weights that are missing from the `models` folder are downloaded (after asking) the first time a tool needs them.
+
 ## Updating TagLab
 
 If you already installed TagLab and you need to update to a new version, you can just run the `update.py` script from 
