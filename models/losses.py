@@ -36,8 +36,7 @@ def surface_loss_fake(y_true, n_classes):
 
         dist_maps = one_hot2dist(y_true_onehot_numpy[i])  # it works on a numpy array
         dist_maps_tensor = torch.from_numpy(dist_maps).to(torch.float32)
-        if torch.cuda.is_available():
-            dist_maps_tensor = dist_maps_tensor.to(device='cuda')
+        dist_maps_tensor = dist_maps_tensor.to(y_true.device)
         loss += dist_maps_tensor * y_true_onehot[i]
 
     return loss.mean()
@@ -59,8 +58,7 @@ def surface_loss(y_true, y_pred):
 
         dist_maps = one_hot2dist(y_true_onehot_numpy[i])  # it works on a numpy array
         dist_maps_tensor = torch.from_numpy(dist_maps).to(torch.float32)
-        if torch.cuda.is_available():
-            dist_maps_tensor = dist_maps_tensor.to(device='cuda')
+        dist_maps_tensor = dist_maps_tensor.to(y_pred.device)
 
         loss += dist_maps_tensor * y_pred_prob[i]
 
@@ -77,8 +75,7 @@ def surface_loss(y_true, y_pred):
 def make_one_hot(labels, C=2):
 
     one_hot = torch.FloatTensor(labels.size(0), C, labels.size(1), labels.size(2)).zero_()
-    if torch.cuda.is_available():
-        one_hot = one_hot.to('cuda')
+    one_hot = one_hot.to(labels.device)
     target = one_hot.scatter_(1, labels.unsqueeze(1), 1.0)
 
     target = Variable(target)

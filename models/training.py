@@ -12,6 +12,7 @@ from sklearn.metrics import confusion_matrix
 from models.coral_dataset import CoralsDataset
 import models.losses as losses
 from PySide6.QtWidgets import QApplication
+from source import genutils
 from source.genutils import requirePackage
 from source.ModelWeights import ensureModel
 
@@ -120,12 +121,8 @@ def evaluateNetwork(dataset, dataloader, loss_to_use, CEloss, w_for_GDL, tversky
 
     ##### SETUP THE NETWORK #####
 
-    USE_CUDA = torch.cuda.is_available()
-
-    if USE_CUDA:
-        device = torch.device("cuda")
-        net.to(device)
-        torch.cuda.synchronize()
+    device = genutils.torchDevice()
+    net.to(device)
 
     ##### EVALUATION #####
 
@@ -148,9 +145,8 @@ def evaluateNetwork(dataset, dataloader, loss_to_use, CEloss, w_for_GDL, tversky
             batch_images, labels_batch, names = data['image'], data['labels'], data['name']
             print(names)
 
-            if USE_CUDA:
-                batch_images = batch_images.to(device)
-                labels_batch = labels_batch.to(device)
+            batch_images = batch_images.to(device)
+            labels_batch = labels_batch.to(device)
 
             # N x K x H x W --> N: batch size, K: number of classes, H: height, W: width
             outputs = net(batch_images)
@@ -328,10 +324,7 @@ def trainingNetwork(images_folder_train, labels_folder_train, images_folder_val,
     if base_network is None:
         raise Exception("The base network deeplab-resnet.pth.tar is not available, the training cannot start.")
 
-    if torch.cuda.is_available():
-        state = torch.load(base_network, weights_only=False, map_location=torch.device("cuda"))
-    else:
-        state = torch.load(base_network, weights_only=False, map_location=torch.device("cpu"))
+    state = torch.load(base_network, weights_only=False, map_location=torch.device("cpu"))
 
     # RE-INIZIALIZE THE CLASSIFICATION LAYER WITH THE RIGHT NUMBER OF CLASSES, DON'T LOAD WEIGHTS OF THE CLASSIFICATION LAYER
     new_dictionary = state['state_dict']
@@ -383,12 +376,7 @@ def trainingNetwork(images_folder_train, labels_folder_train, images_folder_val,
     else:
         raise Exception(f"Invalid optimizer name: {optimiz}. Must be 'SGD', 'ADAM', or 'QHADAM'.")
 
-    USE_CUDA = torch.cuda.is_available()
-
-    if USE_CUDA:
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
+    device = genutils.torchDevice()
 
     net.to(device)
 
@@ -414,17 +402,14 @@ def trainingNetwork(images_folder_train, labels_folder_train, images_folder_val,
 
     # Crossentropy loss
     weights = datasetTrain.weights
-    if torch.cuda.is_available():
-        class_weights = torch.FloatTensor(weights).cuda()
-    else:
-        class_weights = torch.FloatTensor(weights)
+    class_weights = torch.FloatTensor(weights).to(device)
     CEloss = nn.CrossEntropyLoss(weight=class_weights, ignore_index=-1)
 
     # weights for GENERALIZED DICE LOSS (GDL)
     freq = 1.0 / datasetTrain.weights[1:]
     w = 1.0 / (freq * freq)
     w = w / w.sum() + 0.00001
-    w_for_GDL = torch.from_numpy(w)
+    w_for_GDL = torch.from_numpy(w).float()  # MPS has no float64
     w_for_GDL = w_for_GDL.to(device)
 
     # Focal Tversky loss
@@ -460,9 +445,8 @@ def trainingNetwork(images_folder_train, labels_folder_train, images_folder_val,
             images_batch = minibatch['image']
             labels_batch = minibatch['labels']
 
-            if USE_CUDA:
-                images_batch = images_batch.to(device)
-                labels_batch = labels_batch.to(device)
+            images_batch = images_batch.to(device)
+            labels_batch = labels_batch.to(device)
 
             # forward+loss+backward
             outputs = net(images_batch)
@@ -596,7 +580,7 @@ def trainingNetwork(images_folder_train, labels_folder_train, images_folder_val,
         print("Warning: No validation improvement detected. Saving final network state.")
         torch.save(net.state_dict(), save_network_as)
     
-    torch.cuda.empty_cache()
+    genutils.emptyDeviceCache()
     del net
     net = None
 
@@ -631,10 +615,7 @@ def testNetwork(images_folder, labels_folder, labels_dictionary, target_classes,
     # DEEPLAB V3+
     net = DeepLab(backbone='resnet', output_stride=16, num_classes=output_classes)
 
-    if torch.cuda.is_available():
-        net.load_state_dict(torch.load(network_filename, weights_only=False, map_location=torch.device("cuda")))
-    else:
-        net.load_state_dict(torch.load(network_filename, weights_only=False, map_location=torch.device("cpu")))
+    net.load_state_dict(torch.load(network_filename, weights_only=False, map_location=torch.device("cpu")))
 
     print("Weights loaded.")
 

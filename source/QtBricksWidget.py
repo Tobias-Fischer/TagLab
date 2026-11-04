@@ -38,6 +38,7 @@ from models.isegm.inference import utils
 from source.genutils import cropQImage, cropImage, qimageToNumpyArray, maskToQImage, rgbToQImage, floatmapToQImage
 from source.Mask import checkIntersection, intersectMask, paintMask
 import random
+from source import genutils
 from source.genutils import taglabPath, modelPath
 
 class QtBricksWidget(QWidget):
@@ -387,11 +388,7 @@ class QtBricksWidget(QWidget):
             model_name = 'ritm_corals.pth'
             model_path = modelPath(model_name)
 
-            if not torch.cuda.is_available():
-                print("CUDA NOT AVAILABLE!")
-                device = torch.device("cpu")
-            else:
-                device = torch.device("cuda:0")
+            device = genutils.torchDevice()
 
             try:
                 self.ritm_net = utils.load_is_model(model_path, device, cpu_dist_maps=False)
@@ -473,7 +470,7 @@ class QtBricksWidget(QWidget):
             segm_mask = pred > 0.5
             segm_mask = segm_mask.astype(np.int32)
             segm_mask = segm_mask*255
-            torch.cuda.empty_cache()
+            genutils.emptyDeviceCache()
 
             offsety = self.macroarea_blob.bbox[0] + bbox[0]
             offsetx = self.macroarea_blob.bbox[1] + bbox[1]

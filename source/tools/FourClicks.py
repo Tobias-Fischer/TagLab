@@ -210,19 +210,15 @@ class FourClicks(Tool):
             self.deepextreme_net.load_state_dict(new_state_dict)
             self.deepextreme_net.eval()
 
-            if not torch.cuda.is_available():
-                print("CUDA NOT AVAILABLE!")
-            else:
-                gpu_id = 0
-                device = torch.device("cuda:" + str(gpu_id) if torch.cuda.is_available() else "cpu")
-                self.deepextreme_net.to(device)
-                self.device = device
+            device = genutils.torchDevice()
+            self.deepextreme_net.to(device)
+            self.device = device
 
         return True
 
     def resetNetwork(self):
         try:
-            torch.cuda.empty_cache()
+            genutils.emptyDeviceCache()
             if self.deepextreme_net is not None:
                 del self.deepextreme_net
                 self.deepextreme_net = None

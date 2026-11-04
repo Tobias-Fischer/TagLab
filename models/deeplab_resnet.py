@@ -85,6 +85,15 @@ class ClassifierModule(nn.Module):
         return out
 
 
+class AdaptiveAvgPool2dMPS(nn.AdaptiveAvgPool2d):
+    """ Adaptive average pooling that also works on the Apple GPU (MPS), which cannot pool to an output size that does not divide the input size: those cases run on the CPU. """
+    def forward(self, x):
+        out = self.output_size if isinstance(self.output_size, tuple) else (self.output_size, self.output_size)
+        if x.device.type == "mps" and (x.shape[2] % out[0] or x.shape[3] % out[1]):
+            return super().forward(x.cpu()).to(x.device)
+        return super().forward(x)
+
+
 class PSPModule(nn.Module):
     """
     Pyramid Scene Parsing module
@@ -98,7 +107,7 @@ class PSPModule(nn.Module):
         self.final = nn.Conv2d(out_features, n_classes, kernel_size=1)
 
     def _make_stage_1(self, in_features, size):
-        prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
+        prior = AdaptiveAvgPool2dMPS(output_size=(size, size))
         conv = nn.Conv2d(in_features, in_features//4, kernel_size=1, bias=False)
         bn = nn.BatchNorm2d(in_features//4, affine=affine_par)
         relu = nn.ReLU(inplace=True)

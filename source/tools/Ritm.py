@@ -5,6 +5,7 @@ from PySide6.QtGui import QPen, QBrush
 from source.tools.Tool import Tool
 from source.Mask import paintMask, jointBox, jointMask, replaceMask, checkIntersection, intersectMask
 from source.genutils import qimageToNumpyArray
+from source import genutils
 from source.ModelWeights import ensureModel
 from source.genutils import cropQImage, maskToQImage, floatmapToQImage
 
@@ -267,7 +268,7 @@ class Ritm(Tool):
                     segm_mask = joint_mask[0]
 
                 segm_mask = segm_mask*255
-                torch.cuda.empty_cache()
+                genutils.emptyDeviceCache()
 
                 utils.undrawAllBlobs(self.current_blobs, self.viewerplus.scene)
                 self.current_blobs = []
@@ -320,12 +321,7 @@ class Ritm(Tool):
                 self.infoMessage.emit("RITM network not available.")
                 return False
 
-            if not torch.cuda.is_available():
-                print("CUDA NOT AVAILABLE!")
-                device = torch.device("cpu")
-            else:
-                device = torch.device("cuda:0")
-
+            device = genutils.torchDevice()
             self.device = device
 
             try:
@@ -344,7 +340,7 @@ class Ritm(Tool):
 
     def resetNetwork(self):
         try:
-            torch.cuda.empty_cache()
+            genutils.emptyDeviceCache()
             if self.ritm_net is not None:
                 del self.ritm_net
                 self.ritm_net = None

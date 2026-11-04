@@ -95,10 +95,8 @@ class MapClassifier(QObject):
 
         classifier = DeepLab(backbone='resnet', output_stride=16, num_classes=self.nclasses)
 
-        if torch.cuda.is_available():
-            classifier.load_state_dict(torch.load(network_name, weights_only=False, map_location=torch.device("cuda")))
-        else:
-            classifier.load_state_dict(torch.load(network_name, weights_only=False, map_location=torch.device("cpu")))
+        # weights are loaded on the CPU and moved to the device in run()
+        classifier.load_state_dict(torch.load(network_name, weights_only=False, map_location=torch.device("cpu")))
 
         classifier.eval()
 
@@ -167,10 +165,8 @@ class MapClassifier(QObject):
         tile_cols = int(self.wa_width / AGGREGATION_WINDOW_SIZE) + 1
         tile_rows = int(self.wa_height / AGGREGATION_WINDOW_SIZE) + 1
 
-        if torch.cuda.is_available():
-            device = torch.device("cuda")
-            self.net.to(device)
-            torch.cuda.synchronize()
+        device = genutils.torchDevice()
+        self.net.to(device)
 
         self.net.eval()
 
@@ -233,8 +229,7 @@ class MapClassifier(QObject):
                             img_tensor = torch.from_numpy(img_np)
                             input = img_tensor.unsqueeze(0)
 
-                            if torch.cuda.is_available():
-                                input = input.to(device)
+                            input = input.to(device)
 
                             outputs = self.net(input)
 
@@ -300,7 +295,7 @@ class MapClassifier(QObject):
                 QCoreApplication.processEvents()
 
         self.assembleTiles(tile_rows, tile_cols, AGGREGATION_WINDOW_SIZE, ass_scores= save_scores)
-        torch.cuda.empty_cache()
+        genutils.emptyDeviceCache()
         del self.net
         self.net = None
 
