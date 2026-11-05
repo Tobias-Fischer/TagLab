@@ -38,6 +38,25 @@ def upscaleMask(mask, height, width):
                 bbox=[int(xs.min()), int(ys.min()), int(xs.max() - xs.min() + 1), int(ys.max() - ys.min() + 1)])
 
 
+def workAreaHint(blobs, area_width):
+    """
+    A hint for the user when the work area may be too small for the colonies. SAM outlines a colony as one piece when it
+    spans roughly 10-45 % of the work-area width (measured on a 13 cm colony: a 19 cm area gave polyp-sized pieces,
+    37 cm or more the whole colony). TagLab does not know the colony, so the largest outline stands in for it: when it
+    spans more than 45 % of the width the area is tight, and when it spans less than 15 % the colony was probably cut
+    into pieces (a 512 px area on a colony spanning 53 % of it: largest piece 11 %; 1024 px: the colony, 33 %; 2048 px: 17 %).
+    Returns the text, or None when the largest outline is in range. Blobs are in map pixels.
+    """
+    if not blobs or area_width <= 0:
+        return None
+    largest = max(max(blob.bbox[2], blob.bbox[3]) for blob in blobs) / area_width
+    if 0.15 <= largest <= 0.45:
+        return None
+    return "The largest outline spans %d %% of the work area width. Automatic SAM outlines a colony as one piece when it " \
+           "spans 10-45 %%: if you expected larger outlines, choose a larger work area (SHIFT + WHEEL) and try again." \
+           % round(100 * largest)
+
+
 class Sam(Tool):
 
     samEnded = Signal()
@@ -90,6 +109,7 @@ class Sam(Tool):
         self.sam_net = None
         self.device = None
         self.created_blobs = []
+        self.hint = None
 
     def activate(self):
         self.viewerplus.showMessage(self.tool_message)
@@ -383,6 +403,11 @@ class Sam(Tool):
 
         self.viewerplus.resetTools()
 
+        # after resetTools, which clears the message panel
+        if self.hint is not None:
+            self.viewerplus.showMessage("<p>" + self.hint + "</p>", "warning", 20000)
+            self.hint = None
+
     def segment(self, image, seed = 32, save_status=True):
 
         self.infoMessage.emit("Segmentation is ongoing..")
@@ -466,6 +491,11 @@ class Sam(Tool):
             closed_mask = (closed_mask > 0).astype('uint8')
             blob.updateUsingMask(blob.bbox, closed_mask)
             self.viewerplus.addBlob(blob, selected=True)
+
+        hint = workAreaHint(created, self.work_area_item.width() if self.work_area_item is not None else 0)
+        self.hint = hint
+        if hint is not None:
+            self.log.emit("[TOOL][SAM] " + hint)
 
         self.viewerplus.saveUndo()
         self.created_blobs = []
