@@ -1,3 +1,4 @@
+import importlib.util
 import io
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -8,7 +9,7 @@ import unittest
 from unittest.mock import patch
 import zipfile
 
-from model_download import ModelDownloadError, ensure_model
+from model_download import ModelDownloadCancelled, ModelDownloadError, ensure_model, looks_complete
 
 
 class ModelDownloadTests(unittest.TestCase):
@@ -247,6 +248,81 @@ class ModelDownloadTests(unittest.TestCase):
             ensure_model(self.url, self.destination)
         self.assertFalse(self.destination.exists())
         self.assertEqual(list(Path(self.temp.name).glob('*.part')), [])
+
+
+    def zip_payload(self):
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, 'w') as archive:
+            archive.writestr('checkpoint/data', b'tensor data' * 64)
+        return buffer.getvalue()
+
+    def test_cached_truncated_zip_is_seen_offline(self):
+        self.payload = self.zip_payload()
+        self.destination.write_bytes(self.payload[:len(self.payload) // 2])
+        self.assertFalse(looks_complete(self.destination))
+        self.destination.write_bytes(self.payload)
+        self.assertTrue(looks_complete(self.destination))
+
+    def test_cached_legacy_checkpoint_is_checked_against_the_server_size(self):
+        self.destination.write_bytes(self.payload[:12])
+        self.assertFalse(looks_complete(self.destination, self.url))
+        self.destination.write_bytes(self.payload)
+        self.assertTrue(looks_complete(self.destination, self.url))
+        self.assertEqual(self.gets, 0)  # only HEAD, nothing downloaded
+
+    def test_cached_legacy_checkpoint_is_trusted_offline(self):
+        self.destination.write_bytes(self.payload[:12])
+        with socket.socket() as closed:  # a port nobody listens on: the server is unreachable
+            closed.bind(('127.0.0.1', 0))
+            offline = 'http://127.0.0.1:{}/model.pth'.format(closed.getsockname()[1])
+        self.assertTrue(looks_complete(self.destination, offline, timeout=1))
+        self.assertFalse(looks_complete(Path(self.temp.name) / 'missing.pth', offline, timeout=1))
+
+    def test_cancel_stops_the_download_and_keeps_nothing(self):
+        seen = []
+
+        def progress(received, total):
+            seen.append((received, total))
+            return False
+
+        with self.assertRaises(ModelDownloadCancelled):
+            ensure_model(self.url, self.destination, progress)
+        self.assertEqual(seen[0][1], len(self.payload))
+        self.assertFalse(self.destination.exists())
+        self.assertEqual(list(Path(self.temp.name).glob('*.part')), [])
+
+    def test_progress_reaches_the_full_size(self):
+        seen = []
+        self.assertTrue(ensure_model(self.url, self.destination, lambda r, t: seen.append((r, t))))
+        self.assertEqual(seen[-1], (len(self.payload), len(self.payload)))
+
+    @unittest.skipUnless(importlib.util.find_spec('PyQt5'), 'needs PyQt5')
+    def test_taglab_offers_to_download_a_truncated_sam_checkpoint_again(self):
+        import os
+        os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+        from PyQt5.QtWidgets import QApplication, QMessageBox
+        import source.ModelWeights as weights
+        app = QApplication.instance() or QApplication([])  # noqa: F841
+        self.payload = self.zip_payload()
+        name = 'sam_vit_h_4b8939.pth'
+        cached = Path(self.temp.name) / name
+        cached.write_bytes(self.payload[:len(self.payload) // 2])  # an interrupted install
+        asked = []
+
+        def answer(parent, title, text, *args):
+            asked.append(text)
+            return QMessageBox.Yes
+
+        base = self.url.rsplit('/', 1)[0] + '/'
+        with patch.object(weights, 'MODELS_URL', base), \
+                patch.object(weights, 'modelPath', lambda n: str(Path(self.temp.name) / n)), \
+                patch.object(weights, '_checked', set()), \
+                patch.object(QMessageBox, 'question', answer), \
+                patch.object(QMessageBox, 'warning', lambda *a: self.fail(a)):
+            self.assertEqual(weights.ensureModel(name), str(cached))
+        self.assertEqual(len(asked), 1)
+        self.assertIn('incomplete', asked[0])
+        self.assertEqual(cached.read_bytes(), self.payload)
 
 
 if __name__ == '__main__':

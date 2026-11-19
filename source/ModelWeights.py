@@ -3,14 +3,14 @@
 # a tool needs them (the same files that install.py downloads).
 
 import os
-import urllib.request
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QMessageBox, QProgressDialog
 
+from model_download import ModelDownloadCancelled, ModelDownloadError, ensure_model, looks_complete
 from source.genutils import modelPath
 
-MODELS_URL = "http://taglab.isti.cnr.it/models/"
+MODELS_URL = "https://taglab.isti.cnr.it/models/"
 
 # the weights that can be downloaded and their approximate size in MB
 MODEL_SIZES_MB = {
@@ -23,65 +23,41 @@ MODEL_SIZES_MB = {
     "sam_vit_h_4b8939.pth": 2560,
 }
 
-
-def downloadFile(url, filename, progress=None):
-    """
-    Downloads url to filename (through a .part file, so that an interrupted download is never mistaken
-    for a complete one). progress(read_bytes, total_bytes) may return False to cancel. Returns True if completed.
-    """
-
-    request = urllib.request.Request(url, headers={"User-agent": "Mozilla/5.0"})
-    part = filename + ".part"
-    try:
-        cancelled = False
-        with urllib.request.urlopen(request) as response, open(part, "wb") as out:
-            total = int(response.headers.get("Content-Length", 0))
-            read = 0
-            while True:
-                chunk = response.read(1 << 20)
-                if not chunk:
-                    break
-                out.write(chunk)
-                read += len(chunk)
-                if progress is not None and progress(read, total) is False:
-                    cancelled = True
-                    break
-        if not cancelled and (total == 0 or read == total):
-            os.replace(part, filename)
-            return True
-    except Exception:
-        pass
-    if os.path.exists(part):
-        os.remove(part)
-    return False
+# weights already checked in this session (the check asks the server for the size)
+_checked = set()
 
 
 def ensureModel(name, parent=None):
     """
-    Returns the path of the weights file `name` in the models folder. If it is missing, asks the user and downloads
-    it (with a progress dialog). Returns None if the file is not available (declined, cancelled or download failed);
-    in that case the user has already been told, so the caller only has to give up.
+    Returns the path of the weights file `name` in the models folder. If it is missing, or incomplete (an interrupted
+    download, e.g. by an earlier install: see model_download.looks_complete), asks the user and downloads it (with a
+    progress dialog). Returns None if the file is not available (declined, cancelled or download failed); in that case
+    the user has already been told, so the caller only has to give up.
     """
 
     path = modelPath(name)
+    url = MODELS_URL + name
     if os.path.exists(path):
-        return path
-
-    if name not in MODEL_SIZES_MB:
+        # weights that are not on the server (e.g. trained by the user) are used as they are
+        if path in _checked or name not in MODEL_SIZES_MB or looks_complete(path, url):
+            _checked.add(path)
+            return path
+        text = ("The network weights " + name + " needed by this tool are incomplete (" +
+                str(os.path.getsize(path) // (1 << 20)) + " MB of about " + str(MODEL_SIZES_MB[name]) +
+                " MB; an earlier download was probably interrupted).\n\nDownload them again now from " +
+                MODELS_URL + " ?")
+    elif name not in MODEL_SIZES_MB:
         QMessageBox.warning(parent, "Model not found", "The model file " + name + " is not in the models folder.")
         return None
+    else:
+        text = ("The network weights " + name + " (about " + str(MODEL_SIZES_MB[name]) + " MB) are needed by this "
+                "tool and are not installed.\n\nDownload them now from " + MODELS_URL + " ?")
 
-    size = MODEL_SIZES_MB[name]
-    reply = QMessageBox.question(parent, "Download model",
-                                 "The network weights " + name + " (about " + str(size) + " MB) are needed by this tool "
-                                 "and are not installed.\n\nDownload them now from " + MODELS_URL + " ?",
-                                 QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+    reply = QMessageBox.question(parent, "Download model", text, QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
     if reply != QMessageBox.Yes:
         return None
 
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-
-    dialog = QProgressDialog("Downloading " + name + "...", "Cancel", 0, size, parent)
+    dialog = QProgressDialog("Downloading " + name + "...", "Cancel", 0, MODEL_SIZES_MB[name], parent)
     dialog.setWindowTitle("Downloading model")
     dialog.setWindowModality(Qt.WindowModal)
     dialog.setMinimumDuration(0)
@@ -91,21 +67,28 @@ def ensureModel(name, parent=None):
     dialog.canceled.connect(lambda: cancelled.append(True))
 
     def progress(read, total):
-        if total > 0:
-            dialog.setMaximum(max(1, total // (1 << 20)))
+        dialog.setMaximum(max(1, total // (1 << 20)))
         dialog.setValue(min(read // (1 << 20), dialog.maximum() - 1))
         QApplication.processEvents()
         return not cancelled
 
-    ok = downloadFile(MODELS_URL + name, path, progress)
+    error = None
+    try:
+        # checks the download (size, and the CRC of ZIP checkpoints) before it replaces anything
+        ensure_model(url, path, progress)
+    except ModelDownloadCancelled:
+        error = ""
+    except ModelDownloadError as exc:
+        error = str(exc)
     dialog.canceled.disconnect()
     dialog.close()
 
-    if not ok:
-        if not cancelled:
+    if error is not None:
+        if error:
             QMessageBox.warning(parent, "Download failed",
-                                "Could not download " + name + ".\nCheck the internet connection, or download\n" +
-                                MODELS_URL + name + "\nand copy it into the folder " + os.path.dirname(path))
+                                "Could not download " + name + ":\n" + error + "\n\nCheck the internet connection, "
+                                "or download\n" + url + "\nand copy it into the folder " + os.path.dirname(path))
         return None
 
+    _checked.add(path)
     return path

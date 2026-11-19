@@ -20,10 +20,20 @@ class _IncompleteDownload(ModelDownloadError):
     pass
 
 
+class ModelDownloadCancelled(ModelDownloadError):
+    """The progress callback asked to stop; nothing was kept."""
+
+
 _RANGE_SIZE = 8 * 1024 * 1024
 _ATTEMPTS = 3
 _RETRY_DELAY = 1
 _TIMEOUT = 60
+_HEADERS = {'User-Agent': 'Mozilla/5.0', 'Accept-Encoding': 'identity'}
+
+
+def _report(progress, received, total):
+    if progress is not None and progress(received, total) is False:
+        raise ModelDownloadCancelled('The download was cancelled.')
 
 
 def _retry(operation):
@@ -86,7 +96,7 @@ def _download_range(url, headers, metadata, start, end, expected_size):
     return _retry(attempt)
 
 
-def _download_full(url, headers, metadata, expected_size, stream):
+def _download_full(url, headers, metadata, expected_size, stream, progress=None):
     def attempt():
         stream.seek(0)
         stream.truncate()
@@ -102,6 +112,7 @@ def _download_full(url, headers, metadata, expected_size, stream):
                     break
                 received += len(chunk)
                 stream.write(chunk)
+                _report(progress, received, expected_size)
             if received != expected_size:
                 raise _IncompleteDownload(
                     'Incomplete model: received {} bytes, expected {}. Please retry.'.format(
@@ -126,8 +137,39 @@ def _is_complete(path, expected_size):
     return True
 
 
-def ensure_model(url, destination):
+def looks_complete(path, url=None, timeout=5):
+    """A quick check of a model already in the cache, for use before every load:
+    False if a ZIP checkpoint has lost its end (an interrupted download has no
+    central directory) or, when the server answers within ``timeout`` seconds,
+    if the file's size differs from the server's. Offline, a legacy checkpoint
+    that exists is trusted (it cannot be checked without unpickling it). The
+    full CRC check of :func:`ensure_model` reads the whole file, too slow here.
+    """
+    path = Path(path)
+    if not path.is_file():
+        return False
+    try:
+        with path.open('rb') as stream:
+            if stream.read(4) == b'PK\x03\x04':
+                with zipfile.ZipFile(path):
+                    pass
+    except (OSError, zipfile.BadZipFile):
+        return False
+    if url is not None:
+        try:
+            request = urllib.request.Request(url, method='HEAD', headers=_HEADERS)
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                return path.stat().st_size == _response_size(response)
+        except (OSError, http.client.HTTPException, ModelDownloadError):
+            pass  # offline or the server is not answering: keep the local verdict
+    return True
+
+
+def ensure_model(url, destination, progress=None):
     """Return True if a model was downloaded, False if the cache was verified.
+
+    ``progress(received_bytes, total_bytes)`` is called while downloading; if it
+    returns False the download stops with :class:`ModelDownloadCancelled`.
 
     The installer needs network access to verify the server's file size.
     ZIP checkpoints also receive a CRC check; legacy checkpoints are checked
@@ -137,7 +179,7 @@ def ensure_model(url, destination):
     Temporary files are never reused across invocations and are removed on failure.
     """
     destination = Path(destination)
-    headers = {'User-Agent': 'Mozilla/5.0', 'Accept-Encoding': 'identity'}
+    headers = _HEADERS
     temporary = None
     try:
         def inspect_server():
@@ -162,13 +204,14 @@ def ensure_model(url, destination):
                     end = min(start + _RANGE_SIZE, expected_size) - 1
                     data = _download_range(url, headers, metadata, start, end, expected_size)
                     if data is None:
-                        _download_full(url, headers, metadata, expected_size, stream)
+                        _download_full(url, headers, metadata, expected_size, stream, progress)
                         break
                     stream.write(data)
+                    _report(progress, end + 1, expected_size)
             else:
                 # Weak or missing validators cannot safely identify the bytes
                 # being combined from multiple requests.
-                _download_full(url, headers, metadata, expected_size, stream)
+                _download_full(url, headers, metadata, expected_size, stream, progress)
 
         if not _is_complete(temporary, expected_size):
             received = temporary.stat().st_size
